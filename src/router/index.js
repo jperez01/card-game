@@ -1,15 +1,15 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import HelloWorld from '../components/HelloWorld.vue';
+import MatchingCards from '../components/MatchingCards.vue';
 import Home from '../views/Home.vue';
 
 Vue.use(VueRouter);
 
 const routes = [
     {
-        path: '/blackjack',
+        path: '/matching',
         name: 'FirstGame',
-        component: HelloWorld
+        component: MatchingCards
     },
     {
         path: '/',

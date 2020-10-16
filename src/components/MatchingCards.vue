@@ -1,5 +1,5 @@
 <template>
-  <div class="playing-field" v-on:click="moveCard">
+  <div class="playing-field">
     <Loader />
       <router-link class="home" to="/">Return Home </router-link>
     <div class="header">
@@ -27,16 +27,13 @@ import Deck from './Deck';
 import CardInfo from './CardInfo';
 
 export default {
-  name: 'HelloWorld',
+  name: 'MatchingCards',
   props: {
   },
   components: {
     Loader
   },
   methods: {
-    moveCard: function(e) {
-      this.deck.moveCard(e);
-    },
     startTimer: function() {
       let seconds = 0;
       let minutes = 0;
@@ -119,14 +116,8 @@ export default {
       if (result) {
         this.oldCards.push(oldFirst);
         this.oldCards.push(oldSecond);
-        setTimeout(() => {
-          oldFirst.style.visibility = 'hidden';
-          oldFirst.style.opacity = '0';
-          oldFirst.style.transition = 'visibility 1.5s linear, opacity 300ms ease-in-out';
-          oldSecond.style.visibility = 'hidden';
-          oldSecond.style.opacity = '0';
-          oldSecond.style.transition = 'visibility 1.5s linear, opacity 200ms ease-in-out';
-        }, 700);
+        this.hideMatchedCards(oldFirst, oldSecond);
+        this.checkForEnd();
       } else {
         setTimeout(() => {
           oldFirst.classList.toggle('is-flipped');
@@ -135,6 +126,21 @@ export default {
       }
       this.firstFlipped = null;
       this.secondFlipped = null;
+    },
+    hideMatchedCards: function(card1, card2) {
+      setTimeout(() => {
+        card1.style.visibility = 'hidden';
+        card1.style.opacity = '0';
+        card1.style.transition = 'visibility 1.5s linear, opacity 300ms ease-in-out';
+        card2.style.visibility = 'hidden';
+        card2.style.opacity = '0';
+        card2.style.transition = 'visibility 1.5s linear, opacity 200ms ease-in-out';
+      }, 700);
+    },
+    checkForEnd: function() {
+      if (this.oldCards.length === 32) {
+        this.endTimer();
+      }
     }
   },
   created() {

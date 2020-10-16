@@ -358,7 +358,6 @@ function CardInfo() {
         let i = this.urls.length,
         j = 0,
         temp;
-        console.log(this.urls);
         while (i--) {
             j = Math.floor(Math.random() * (i+1));
 
@@ -368,13 +367,13 @@ function CardInfo() {
             this.urls[j] = temp;
 
         }
-        console.log(this.urls);
     }
 
     this.shuffleGivenUrls = function(givenUrls) {
         let i = givenUrls.length,
         j = 0,
         temp;
+        console.log(givenUrls);
         while (i--) {
             j = Math.floor(Math.random() * (i+1));
 
@@ -383,6 +382,7 @@ function CardInfo() {
             givenUrls[i] = givenUrls[j];
             givenUrls[j] = temp;
         }
+        console.log(givenUrls);
         return givenUrls;
     }
 
