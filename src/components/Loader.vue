@@ -32,20 +32,28 @@ export default {
 
 <style>
 .loading-text {
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 4;
+  position: absolute;
+  text-align: center;
+  margin: auto;
+  top: 46.5%;
+  left: 48%;
+  font-family: 'Comm Bold';
+  z-index: 4;
+  color: white;
 }
 
 .loading-screen {
-    position: absolute;
-    background-color: #45a173;
-    opacity: .3;
-    filter: brightness(.1);
-    width: 100vw;
-    height: 100vh;
-    z-index: 3;
+  position: absolute;
+  background-color: #45a173;
+  opacity: .3;
+  filter: brightness(.1);
+  width: 100vw;
+  height: 100vh;
+  z-index: 3;
+}
+
+@font-face {
+    font-family: 'Comm Bold';
+    src: url('../assets/fonts/Commissioner-SemiBold.ttf');
 }
 </style>

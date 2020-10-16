@@ -1,7 +1,7 @@
 <template>
   <div class="playing-field" v-on:click="moveCard">
     <Loader />
-    <router-link class="home" to="/">Return Home </router-link>
+      <router-link class="home" to="/">Return Home </router-link>
     <div class="header">
       <button v-on:click="resetField" class="button"> Reset </button>
       <div class="header-info">
@@ -206,6 +206,17 @@ export default {
 .button {
   height: 40px;
   width: 100px;
+  font-family: 'Comm Bold';
+  font-size: 20px;
+  color: white;
+  align-self: center;
+  background: none;
+  border: 1px solid white;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: rgba(66, 65, 65, .4);
 }
 
 .header {
@@ -218,15 +229,19 @@ export default {
 .header-info {
   display: flex;
   flex-direction: column;
+  width: 100px;
 }
 
 .header-item {
+  font-family: 'Comm Bold';
   color: white;
   margin: 0;
   text-align: center;
   font-size: 16px;
 }
+
 .header-label {
+  font-family: 'Comm Bold';
   color: white;
   margin: 0;
   text-align: center;
@@ -234,6 +249,23 @@ export default {
 }
 
 .home {
+  height: 25px;
+  text-align: center;
   position: absolute;
+  font-family: 'Comm Bold';
+  color: white;
+  font-size: 20px;
+  padding: 10px;
+  margin: 20px;
+  text-decoration: none;
+  border: 1px solid white;
+}
+
+.home:hover {
+  background-color:rgba(66, 65, 65, .4);
+}
+@font-face {
+    font-family: 'Comm Bold';
+    src: url('../assets/fonts/Commissioner-SemiBold.ttf');
 }
 </style>
