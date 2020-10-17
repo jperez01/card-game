@@ -2,7 +2,11 @@
   <div id="app" class="field">
     <h3 class="title"> Games </h3>
     <router-link class="link" to="/matching"> Matching </router-link>
-    <button v-on:click="sendMessage"> Send Message </button>
+    <button v-on:click="sendMessage"> Create Room </button>
+    <h3>{{roomID}} </h3>
+    <input v-on:change="collectID">
+    <button v-on:click="joinRoom"> Join Room </button>
+    <button v-on:click="sendGreeting"> Send Greeting </button>
   </div>
 </template>
 
@@ -15,21 +19,35 @@ export default {
   components: {
   },
   methods: {
+    collectID: function(e) {
+      this.id = e.target.value;
+    },
+    sendGreeting: function() {
+      this.socket.emit('send to users', this.id);
+    },
     sendMessage: function() {
-      this.socket.emit('message', 'Message sent');
+      this.socket.emit('create room');
+    },
+    joinRoom: function() {
+      this.socket.emit('join room', this.id);
     }
   },
   created() {
     this.socket = socketIOClient(ENDPOINT);
-    this.socket.on('FirstEmit', data => {
-      console.log(data);
+    this.socket.on('created', data => {
+      this.roomID = data;
     });
+    this.socket.on('Hello', () => {
+      console.log('Greeting received');
+    })
   },
   beforeDestroy() {
     this.socket.disconnect();
   },
   data() {
     return {
+      roomID: '',
+      id: ''
     }
   }
 }
