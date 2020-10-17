@@ -2,14 +2,31 @@
   <div id="app" class="field">
     <h3 class="title"> Games </h3>
     <router-link class="link" to="/matching"> Matching </router-link>
+    <button v-on:click="sendMessage"> Send Message </button>
   </div>
 </template>
 
 <script>
+import socketIOClient from 'socket.io-client';
+const ENDPOINT = 'http://localhost:5000';
 
 export default {
   name: 'App',
   components: {
+  },
+  methods: {
+    sendMessage: function() {
+      this.socket.emit('message', 'Message sent');
+    }
+  },
+  created() {
+    this.socket = socketIOClient(ENDPOINT);
+    this.socket.on('FirstEmit', data => {
+      console.log(data);
+    });
+  },
+  beforeDestroy() {
+    this.socket.disconnect();
   },
   data() {
     return {
