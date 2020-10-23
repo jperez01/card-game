@@ -1,17 +1,17 @@
 <template>
   <div class="playing-field">
     <Loader />
-      <router-link class="home" to="/">Return Home </router-link>
-    <div class="header">
-      <button v-on:click="resetField" class="button"> Reset </button>
-      <div class="header-info">
-        <h3 class="header-label"> Moves </h3>
-        <h3 class="header-item"> {{counter}} </h3>
-        <h3 class="header-label"> Time </h3>
-        <h3 class="header-item"> {{time}} </h3>
-      </div>
-      <button v-on:click="startTimer" class="button"> Start </button>
-    </div>
+    <router-link class="home" to="/">Return Home </router-link>
+        <div class="header">
+            <button v-on:click="resetField" class="button"> Reset </button>
+            <div class="header-info">
+            <h3 class="header-label"> Moves </h3>
+            <h3 class="header-item"> {{counter}} </h3>
+            <h3 class="header-label"> Time </h3>
+            <h3 class="header-item"> {{time}} </h3>
+            </div>
+            <button v-on:click="startTimer" class="button"> Start </button>
+        </div>
     <div class="card-deck"> 
       <div class="card" v-for="n in 32" v-on:click="flipCard" v-bind:key=n :url=urls[n] >
         <img class="card__face card__face--front" :src='require("../assets/Cards/1B.svg")'  />

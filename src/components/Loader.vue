@@ -1,9 +1,9 @@
 <template>
-<div>
+  <div>
     <div v-if="loading"  class="loading-screen">
+      <h3 v-if="loading" class="loading-text">Loading</h3>
     </div>
-    <h3 v-if="loading" class="loading-text">Loading</h3>
-</div>
+  </div>
 </template>
 
 <script>
@@ -17,10 +17,9 @@ export default {
     }
   },
   created() {
-        EventBus.$on('loading', data => {
-          console.log(data);
-          this.toggleLoading();
-        });
+    EventBus.$on('loading', () => {
+      this.toggleLoading();
+    });
   },
   methods: {
       toggleLoading: function() {
@@ -32,24 +31,21 @@ export default {
 
 <style>
 .loading-text {
-  position: absolute;
   text-align: center;
-  margin: auto;
-  top: 46.5%;
-  left: 48%;
   font-family: 'Comm Bold';
-  z-index: 4;
   color: white;
 }
 
 .loading-screen {
   position: absolute;
-  background-color: #45a173;
-  opacity: .3;
-  filter: brightness(.1);
-  width: 100vw;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
-  z-index: 3;
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 @font-face {
