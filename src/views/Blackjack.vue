@@ -1,6 +1,8 @@
 <template>
   <div class="playing-field">
-    <GameStarter />
+    <GameStarter  @inProgress="setToSpectator" @startGame="setToPlaying"/>
+    <BlackjackSpectator v-if="spectating" />
+    <BlackjackPlayer v-if="playing" />
   </div>
 </template>
 
@@ -12,8 +14,20 @@ export default {
   components: {
     GameStarter
   },
+  methods: {
+    setToSpectator: function() {
+      this.spectating = true;
+      this.playing = false;
+    },
+    setToPlaying: function() {
+      this.playing = true;
+      this.spectating = false;
+    }
+  },
   data() {
     return {
+      playing: false,
+      spectating: false
     }
   }
 }

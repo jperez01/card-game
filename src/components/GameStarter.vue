@@ -22,6 +22,7 @@ export default {
       this.gameStarted = this.inRoomUsers === this.readyUsers;
       if (this.gameStarted) {
         this.socket.emit('game started', null);
+        this.$emit('startGame');
       }
     }
   },
@@ -37,6 +38,7 @@ export default {
     });
     this.socket.on('game in progress', () => {
       this.inProgress = true;
+      this.$emit('inProgress');
     });
     this.socket.on('game ended', () => {
       this.inProgress = false;

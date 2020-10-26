@@ -2,6 +2,7 @@
   <div id="app" class="field">
     <h3 class="title"> Games </h3>
     <router-link class="link" to="/matching"> Matching </router-link>
+    <router-link class="link" to="/test"> Test </router-link>
     <div class="multiplayer" v-if="this.enabledMult"> 
       <h3 class="type"> Multiplayer </h3>
       <router-link class="link" to="/blackjack"> Blackjack </router-link>
