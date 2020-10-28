@@ -14,21 +14,27 @@
           </div>
         </div>
         <button v-on:click="collectDeckCards"> Make Deck </button>
+        <button v-on:click="handleDealCard"> Move Card </button>
     </div>
 </template>
 
 <script>
-import Deck from '../Deck';
-import CardInfo from '../CardInfo';
 import DeckFunctions from '../../services/DeckFunctions';
+import CardFunctions from '../../services/CardFunctions';
 
 export default {
   name: 'HouseArea',
-  mixins: [DeckFunctions],
+  mixins: [DeckFunctions, CardFunctions],
   components: {
   },
-  props: ['name'],
+  props: ['name', 'user', 'players'],
   methods: {
+    handleDealCard: function() {
+      let playerCard = `P${this.currentPlayer}2`;
+      let url = this.moveCardToPlayer(playerCard, this.toggled);
+      this.socket.emit('send card', (url, `P${this.currentPlayer}`));
+      this.toggled = true;
+    },
     flipCard: function(e) {
       e.stopPropagation();
       let currentCard = e.srcElement;
@@ -36,21 +42,26 @@ export default {
       currentCard.classList.toggle('is-flipped');
     },
     resetUrls: function() {
-      this.info.shuffleUrls();
-      this.urls = this.info.getUrls();
+      this.shuffleUrls();
+      this.urls = this.getUrls();
       this.collectDeckCards();
     }
   },
   created() {
-    this.deck = new Deck();
-    this.info = new CardInfo();
+    this.socket = this.$socket;
     this.resetUrls();
+    if (this.user.localeCompare('P1') === 0) {
+      this.socket.emit('store cards', this.urls);
+    }
+    this.socket.on('send house cards', houseUrls => {
+      this.urls = houseUrls;
+    });
   },
   data() {
     return {
-      playing: false,
-      spectating: false,
-      urls: []
+      urls: [],
+      toggled: false,
+      currentPlayer: 1
     }
   }
 }
@@ -77,5 +88,11 @@ export default {
     transform-style: preserve-3d;
     display: flex;
     justify-content: center;
+    z-index: 3;
+}
+
+.deck-card.is-flipped {
+  transform: rotateY(180deg);
+  transition: transform 1s;
 }
 </style>

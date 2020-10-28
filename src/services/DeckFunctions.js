@@ -101,23 +101,41 @@ const DeckFunctions = {
                 extra_y += 1;
             });
         },
-        moveCardToPlayer: function(id) {
+        moveCardToPlayer: function(id, alreadyToggled) {
+            //Collects all cards in deck
             let deck = document.getElementsByClassName('deck-card');
             let adjacentCard = document.getElementById(id);
+            //Finds position of card adjacent to where it should be
             let newPosition = this.calculateElementPosition(adjacentCard);
+
             for (let i = 0; i < deck.length; i++) {
                 let card = deck[i];
-                if (this.dealtCards.get(card.url) !== null) {
-                    let newXPosition = newPosition.left;
-                    let newYPosition = newPosition.top;
-                    card.style.transition = '';
-                    card.style.transform = `translate(${newXPosition}px, ${newYPosition + 5}px)`;
+                let url = card.getAttribute('url');
+                if (this.dealtCards.get(url) === undefined) {
+                    let oldPosition = this.calculateElementPosition(card);
+                    let newXPosition = newPosition.left - oldPosition.left + 60;
+                    let newYPosition = newPosition.top - oldPosition.top + 1;
+                    card.style.transition = 'transform .5s';
+                    card.style.transform = `translate(${newXPosition}px, ${newYPosition}px)`;
                     card.currentX = newXPosition;
                     card.currentY = newYPosition;
-                    setTimeout(() => {
-                        card.style.visibility = "hidden";
-                    }, 2000);
-                    break;
+                    console.log(alreadyToggled);
+                    if (alreadyToggled) {
+                        setTimeout(() => {
+                            adjacentCard.classList.toggle('is-flipped');
+                        }, 500);
+                        setTimeout(() => {
+                            card.style.visibility = "hidden";
+                            adjacentCard.classList.toggle('is-flipped');
+                        }, 900);
+                    } else {
+                        setTimeout(() => {
+                            card.style.visibility = "hidden";
+                            adjacentCard.classList.toggle('is-flipped');
+                        }, 900);
+                    }
+                    this.dealtCards.set(url, card);
+                    return url;
                 }
             }
         },

@@ -1,10 +1,10 @@
 <template>
     <div>
-        <HouseArea :name='"House"' class="house" />
+        <HouseArea :name='"House"' :user=names[0] :players="this.players" class="house" />
         <PlayerArea :name=names[0] class="main-player" />
-        <SidePlayerArea :name=names[1] class="left-player" />
-        <SidePlayerArea :name=names[3] class="top-player" />
-        <SidePlayerArea :name=names[2] class="right-player" />
+        <SidePlayerArea v-if="active[0]" :name=names[1] class="left-player" />
+        <SidePlayerArea v-if="active[1]" :name=names[3] class="top-player" />
+        <SidePlayerArea v-if="active[2]" :name=names[2] class="right-player" />
         <button v-on:click="resetField"> Collect Cards </button>
         <button v-on:click="moveToOriginalPosition"> Spread Cards </button>
     </div>
@@ -19,21 +19,42 @@ import DeckFunctions from '../../services/DeckFunctions';
 export default {
   name: 'BlackjackPlayer',
   mixins: [DeckFunctions],
+  props: ['name', 'players'],
   components: {
       PlayerArea,
       SidePlayerArea,
       HouseArea
   },
   methods: {
+      setAreasActive: function() {
+          let i = 1;
+          for (i; i < this.players; i++) {
+              this.active.push(true);
+          }
+          if (this.players < 4) {
+              for (i; i < 4; i++) {
+                  this.active.push(false);
+              }
+          }
+      },
+      setPlayerNames: function() {
+        this.names[0] = this.name;
+        let usedValue =  parseInt(this.name.substring(1));
+        for (let i = 0; i < this.players; i++) {
+            if (usedValue !== i + 1) {
+                this.names.push('P' + (i + 1));
+            }
+        }
+      }
   },
   created() {
-      this.names = ['P1', 'P2', 'P3', 'P4'];
+      this.setAreasActive();
+      this.setPlayerNames();
   },
   data() {
     return {
-      playing: false,
-      spectating: false,
-      names: []
+      names: [],
+      active: []
     }
   }
 }

@@ -1,18 +1,22 @@
 <template>
   <div class="playing-field">
     <GameStarter  @inProgress="setToSpectator" @startGame="setToPlaying"/>
-    <BlackjackSpectator v-if="spectating" />
-    <BlackjackPlayer v-if="playing" />
+    <BlackjackSpectator :players="this.players" v-if="spectating" />
+    <BlackjackPlayer :name="this.name" :players="this.players" v-if="playing" />
   </div>
 </template>
 
 <script>
 import GameStarter from '../components/GameStarter';
+import BlackjackSpectator from '../components/blackjack/BlackjackSpectator';
+import BlackjackPlayer from '../components/blackjack/BlackjackPlayer';
 
 export default {
   name: 'Blackjack',
   components: {
-    GameStarter
+    GameStarter,
+    BlackjackSpectator,
+    BlackjackPlayer
   },
   methods: {
     setToSpectator: function() {
@@ -24,10 +28,20 @@ export default {
       this.spectating = false;
     }
   },
+  created() {
+    this.$socket.on('player name', number => {
+      this.name = 'P' + number;
+    });
+    this.$socket.on('room users', users => {
+      this.players = users;
+    })
+  },
   data() {
     return {
       playing: false,
-      spectating: false
+      spectating: false,
+      name: '',
+      players: 0
     }
   }
 }

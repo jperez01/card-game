@@ -2,17 +2,19 @@
     <div class="player-field">
         <h3> {{this.name}}</h3>
         <div class="card-hand"> 
-          <div class="card" :id="name + n" v-for="n in 3" v-on:click="flipCard" v-bind:key=n :url=urls[n] >
+          <div class="card" :id="name + (n-1)" v-for="n in 2" v-on:click="flipCard" v-bind:key=(n-1) :url=urls[(n-1)] >
             <img class="card__face card__face--front" :src='require("../../assets/Cards/1B.svg")'  />
-            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${urls[n]}.svg`)' />
+            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${urls[n-1]}.svg`)' />
+          </div>
+          <div class="card" :id="name + 2" v-on:click="flipCard" v-bind:key=2 :url=urls[2] >
+            <img class="card__face card__face--front" :src='require("../../assets/Cards/1B.svg")'  />
+            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${urls[2]}.svg`)' />
           </div>
         </div>
     </div>
 </template>
 
 <script>
-import Deck from '../Deck';
-import CardInfo from '../CardInfo';
 
 export default {
   name: 'PlayerArea',
@@ -26,22 +28,19 @@ export default {
       currentCard.style.transition = 'transform 1s';
       currentCard.classList.toggle('is-flipped');
 
-    },
-    resetUrls: function() {
-      this.info.shuffleUrls();
-      this.urls = this.info.getUrls();
     }
   },
   created() {
-    this.deck = new Deck();
-    this.info = new CardInfo();
-    this.resetUrls();
+    this.$socket.on('get cards ' + this.name, cards => {
+      this.urls = cards;
+      console.log(`${this.name} got their cards`);
+    });
   },
   data() {
     return {
       playing: false,
       spectating: false,
-      urls: []
+      urls: ['3C', '3C', '3C', '3C']
     }
   }
 }
