@@ -14,7 +14,7 @@
           </div>
         </div>
         <button v-on:click="collectDeckCards"> Make Deck </button>
-        <button v-on:click="handleDealCard"> Move Card </button>
+        <button v-on:click="initiateDealCard"> Deal Card </button>
     </div>
 </template>
 
@@ -29,11 +29,26 @@ export default {
   },
   props: ['name', 'user', 'players'],
   methods: {
+    initiateDealCard: function() {
+      this.$socket.emit('deal card');
+    },
     handleDealCard: function() {
       let playerCard = `P${this.currentPlayer}2`;
       let url = this.moveCardToPlayer(playerCard, this.toggled);
-      this.socket.emit('send card', (url, `P${this.currentPlayer}`));
-      this.toggled = true;
+      this.sendCardToPlayer(`P${this.currentPlayer}`, url);
+
+      // Changes the current player to the next one in the order
+      if (this.currentPlayer !== this.players) {
+        this.currentPlayer += 1;
+      } else {
+        this.currentPlayer = 1;
+        this.toggled = true;
+      }
+    },
+    sendCardToPlayer: function(player, url) {
+      setTimeout(() => {
+          this.$socket.emit('send card', url, player);
+      }, 800);
     },
     flipCard: function(e) {
       e.stopPropagation();
@@ -48,13 +63,15 @@ export default {
     }
   },
   created() {
-    this.socket = this.$socket;
     this.resetUrls();
     if (this.user.localeCompare('P1') === 0) {
-      this.socket.emit('store cards', this.urls);
+      this.$socket.emit('store cards', this.urls);
     }
-    this.socket.on('send house cards', houseUrls => {
+    this.$socket.on('send house cards', houseUrls => {
       this.urls = houseUrls;
+    });
+    this.$socket.on('handle deal', () => {
+      this.handleDealCard();
     });
   },
   data() {

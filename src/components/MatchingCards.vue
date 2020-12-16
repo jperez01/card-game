@@ -23,13 +23,14 @@
 
 <script>
 import Loader from './Loader';
-import Deck from './Deck';
-import CardInfo from './CardInfo';
+import DeckFunctions from '../services/DeckFunctions';
+import CardFunctions from '../services/CardFunctions';
 
 export default {
   name: 'MatchingCards',
   props: {
   },
+  mixins: [DeckFunctions, CardFunctions],
   components: {
     Loader
   },
@@ -56,22 +57,22 @@ export default {
       this.time = '0:00';
     },
     resetUrls: function() {
-      this.info.shuffleUrls();
-      let identifiers = this.info.getUrls();
+      this.shuffleUrls();
+      let identifiers = this.getUrls();
       this.urls = [];
       for (let i = 0; i < 21; i++) {
         this.urls.push(identifiers[i]);
         this.urls.push(identifiers[i]);
       }
-      this.urls = this.info.shuffleGivenUrls(this.urls);
+      this.urls = this.shuffleGivenUrls(this.urls);
     },
     resetField: function(e) {
       this.resetFlippedCard(this.firstFlipped);
       this.resetFlippedCard(this.secondFlipped);
       this.resetInvisibleCards();
       this.endTimer();
-      this.deck.resetField(e);
-      this.info.shuffleUrls();
+      this.resetField(e);
+      this.shuffleUrls();
       this.resetUrls();
       this.counter = 0;
       this.firstFlipped = null;
@@ -144,8 +145,6 @@ export default {
     }
   },
   created() {
-    this.deck = new Deck();
-    this.info = new CardInfo();
     this.timer = null;
     this.oldCards = [];
     this.resetUrls();
@@ -161,7 +160,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .playing-field {
   height: 100vh;

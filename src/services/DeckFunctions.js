@@ -119,7 +119,6 @@ const DeckFunctions = {
                     card.style.transform = `translate(${newXPosition}px, ${newYPosition}px)`;
                     card.currentX = newXPosition;
                     card.currentY = newYPosition;
-                    console.log(alreadyToggled);
                     if (alreadyToggled) {
                         setTimeout(() => {
                             adjacentCard.classList.toggle('is-flipped');

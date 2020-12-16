@@ -8,7 +8,7 @@
           </div>
           <div class="card" :id="name + 2" v-on:click="flipCard" v-bind:key=2 :url=urls[2] >
             <img class="card__face card__face--front" :src='require("../../assets/Cards/1B.svg")'  />
-            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${urls[2]}.svg`)' />
+            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${finalUrl}.svg`)' />
           </div>
         </div>
     </div>
@@ -30,17 +30,19 @@ export default {
     }
   },
   created() {
-    this.urls['3C', '3C', '3C', '3C'];
     this.$socket.on('get cards ' + this.name, cards => {
       this.urls = cards;
-      console.log(`${this.name} got their cards`);
+    });
+    this.$socket.on('dealt card ' + this.name, card => {
+      this.finalUrl = card;
     });
   },
   data() {
     return {
       playing: false,
       spectating: false,
-      urls: ['3C', '3C', '3C', '3C']
+      urls: ['3C', '3C', '3C', '3C'],
+      finalUrl: '3C'
     }
   }
 }

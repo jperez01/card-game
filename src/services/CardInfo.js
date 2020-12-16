@@ -3,7 +3,7 @@ function CardInfo() {
         {
             number: 1,
             suit: 'D',
-            url: 'AD',
+            url: 'ACD',
             name: 'Ace'
         },
         {
