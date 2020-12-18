@@ -21,6 +21,7 @@
 <script>
 import DeckFunctions from '../../services/DeckFunctions';
 import CardFunctions from '../../services/CardFunctions';
+import { EventBus } from '../../main';
 
 export default {
   name: 'HouseArea',
@@ -34,8 +35,12 @@ export default {
     },
     handleDealCard: function() {
       let playerCard = `P${this.currentPlayer}2`;
-      let url = this.moveCardToPlayer(playerCard, this.toggled);
-      this.sendCardToPlayer(`P${this.currentPlayer}`, url);
+
+      // Only sends card to player if they haven't lost yet
+      if (this.playersLost.indexOf(playerCard) == -1) {
+        let url = this.moveCardToPlayer(playerCard, this.toggled);
+        this.sendCardToPlayer(`P${this.currentPlayer}`, url);
+      }
 
       // Changes the current player to the next one in the order
       if (this.currentPlayer !== this.players) {
@@ -73,12 +78,16 @@ export default {
     this.$socket.on('handle deal', () => {
       this.handleDealCard();
     });
+    EventBus.on('player lost', name => {
+      this.playersLost.push(name);
+    });
   },
   data() {
     return {
       urls: [],
       toggled: false,
-      currentPlayer: 1
+      currentPlayer: 1,
+      playersLost: []
     }
   }
 }

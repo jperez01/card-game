@@ -19,6 +19,15 @@ const CardFunctions = {
         getCard: function(url) {
             return this.info.get(url);
         },
+        getValue: function(char) {
+            if (char === 'A') {
+                return 1;
+            } else if (char === 'J' || char === 'K' || char === 'Q') {
+                return 10;
+            } else {
+                return Number(char);
+            }
+        },
         getCardValue: function(url) {
             let card = this.info.get(url);
             return card.number;

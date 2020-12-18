@@ -10,7 +10,7 @@ export default {
   name: 'App',
   components: {
   },
-  beforeDestory() {
+  beforeDestroy() {
     this.$socket.disconnect();
   },
   data() {

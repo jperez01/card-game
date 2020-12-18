@@ -27,6 +27,17 @@ export default {
       let currentCard = e.srcElement;
       currentCard.style.transition = 'transform 1s';
       currentCard.classList.toggle('is-flipped');
+    },
+    addCardValue: function() {
+      let char = this.finalUrl.substring(0, 1);
+      let value = this.getValue(char);
+      this.total += value;
+      if (total > 21) {
+        EventBus.$emit('player lost', name);
+        this.lost = true;
+      } else if (total === 21) {
+        this.$socket.emit('player won', this.name);
+      }
     }
   },
   created() {
@@ -42,7 +53,9 @@ export default {
       playing: false,
       spectating: false,
       urls: ['3C', '3C', '3C', '3C'],
-      finalUrl: '3C'
+      finalUrl: '3C',
+      total: 0,
+      lost: false
     }
   }
 }
