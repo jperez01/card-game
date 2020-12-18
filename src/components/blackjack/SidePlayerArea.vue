@@ -34,6 +34,7 @@ export default {
       this.total += value;
       if (total > 21) {
         EventBus.$emit('player lost', name);
+        console.log(this.lost);
         this.lost = true;
       } else if (total === 21) {
         this.$socket.emit('player won', this.name);
