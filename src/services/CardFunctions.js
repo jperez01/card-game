@@ -22,7 +22,7 @@ const CardFunctions = {
         getValue: function(char) {
             if (char === 'A') {
                 return 1;
-            } else if (char === 'J' || char === 'K' || char === 'Q') {
+            } else if (char === 'J' || char === 'K' || char === 'Q' || char === 'T') {
                 return 10;
             } else {
                 return Number(char);
@@ -42,6 +42,7 @@ const CardFunctions = {
             });
         },
         shuffleUrls: function() {
+            console.log(this.urls);
             let i = this.urls.length,
             j = 0,
             temp;
@@ -54,12 +55,12 @@ const CardFunctions = {
                 this.urls[j] = temp;
     
             }
+            console.log(this.urls);
         },
         shuffleGivenUrls: function(givenUrls) {
             let i = givenUrls.length,
             j = 0,
             temp;
-            console.log(givenUrls);
             while (i--) {
                 j = Math.floor(Math.random() * (i+1));
     

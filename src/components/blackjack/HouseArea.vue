@@ -13,7 +13,7 @@
             </div>
           </div>
         </div>
-        <button v-on:click="collectDeckCards"> Make Deck </button>
+        <button v-on:click="collectCards($event, 'deck-card')"> Make Deck </button>
         <button v-on:click="initiateDealCard"> Deal Card </button>
     </div>
 </template>
@@ -34,10 +34,9 @@ export default {
       this.$socket.emit('deal card');
     },
     handleDealCard: function() {
-      let playerCard = `P${this.currentPlayer}2`;
-
       // Only sends card to player if they haven't lost yet
-      if (this.playersLost.indexOf(playerCard) == -1) {
+      if (this.playersLost.indexOf(this.currentPlayer) == -1) {
+        let playerCard = `P${this.currentPlayer}2`;
         let url = this.moveCardToPlayer(playerCard, this.toggled);
         this.sendCardToPlayer(`P${this.currentPlayer}`, url);
       }
@@ -52,7 +51,7 @@ export default {
     },
     sendCardToPlayer: function(player, url) {
       setTimeout(() => {
-          this.$socket.emit('send card', url, player);
+          EventBus.$emit(`dealt card ${player}`, url);
       }, 800);
     },
     flipCard: function(e) {
@@ -61,30 +60,38 @@ export default {
       currentCard.style.transition = 'transform 1s';
       currentCard.classList.toggle('is-flipped');
     },
-    resetUrls: function() {
+    reset: function() {
       this.shuffleUrls();
-      this.urls = this.getUrls();
-      this.collectDeckCards();
-    }
+      this.givenUrls = this.getUrls();
+      if (this.user.localeCompare('P1') === 0) {
+        setTimeout(() => {
+          this.$socket.emit('store cards', this.givenUrls);
+        }, 2000);
+      }
+      this.playersLost = [];
+      this.currentPlayer = 1;
+      this.toggled = false;
+    },
   },
   created() {
-    this.resetUrls();
-    if (this.user.localeCompare('P1') === 0) {
-      this.$socket.emit('store cards', this.urls);
-    }
+    this.reset();
     this.$socket.on('send house cards', houseUrls => {
-      this.urls = houseUrls;
+      this.givenUrls = houseUrls;
     });
     this.$socket.on('handle deal', () => {
       this.handleDealCard();
     });
-    EventBus.on('player lost', name => {
-      this.playersLost.push(name);
+    this.$socket.on('reset', () => {
+      this.reset();
+    });
+    EventBus.$on('player lost', name => {
+      let convertedValue = Number(name.substring(1, 2));
+      this.playersLost.push(convertedValue);
     });
   },
   data() {
     return {
-      urls: [],
+      givenUrls: [],
       toggled: false,
       currentPlayer: 1,
       playersLost: []

@@ -5,12 +5,13 @@
         <SidePlayerArea v-if="active[0]" :name=names[1] class="left-player" />
         <SidePlayerArea v-if="active[1]" :name=names[3] class="top-player" />
         <SidePlayerArea v-if="active[2]" :name=names[2] class="right-player" />
-        <button v-on:click="resetField"> Collect Cards </button>
+        <button v-on:click="reset"> Collect Cards </button>
         <button v-on:click="moveToOriginalPosition"> Spread Cards </button>
     </div>
 </template>
 
 <script>
+import { EventBus } from '../../main';
 import HouseArea from './HouseArea';
 import PlayerArea from './PlayerArea';
 import SidePlayerArea from './SidePlayerArea';
@@ -45,11 +46,19 @@ export default {
                 this.names.push('P' + (i + 1));
             }
         }
+      },
+      reset: function(e) {
+          this.$socket.emit('reset');
+          this.resetBlackjack(e, 500, 2100);
+          EventBus.$emit('reset');
       }
   },
   created() {
       this.setAreasActive();
       this.setPlayerNames();
+      this.$socket.on('reset', () => {
+          this.resetBlackjack(null, 500, 2100);
+      });
   },
   data() {
     return {

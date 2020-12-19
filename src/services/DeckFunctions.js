@@ -14,15 +14,34 @@ const DeckFunctions = {
                 this.currentCard = null;
             }
         },
-        resetField: function(e) {
+        resetField: function(e, time1, time2) {
             EventBus.$emit('loading', null);
-            this.collectAllCards(e);
+            this.collectAllCards(e, 'card');
             setTimeout(() => {
-            this.shuffleCards(e);
-            }, 300);
+            this.shuffleCards(e, 'card');
+            }, time1);
             setTimeout(() => {
-            this.moveToOriginalPosition()
-            }, 2600);
+            this.moveToOriginalPosition('card');
+            }, time2);
+        },
+        resetBlackjack: function(e, time1, time2) {
+            EventBus.$emit('loading', null);
+            this.collectAllCards(e, 'card');
+            this.collectAllCards(e, 'deck-card');
+            this.resetCardVisibility();
+            setTimeout(() => {
+            this.shuffleCards(e, 'card');
+            this.shuffleCards(e, 'deck-card');
+            }, time1);
+            setTimeout(() => {
+            this.moveToOriginalPosition('card');
+            this.moveToOriginalPosition('deck-card');
+            }, time2);
+        },
+        resetCardVisibility: function() {
+            this.dealtCards.forEach(card => {
+                card.style.visibility = '';
+            });
         },
         moveCard: function(e) {
             if (this.currentCard !== null) {
@@ -33,10 +52,12 @@ const DeckFunctions = {
                 this.currentCard.style.transition = 'transform .3s cubic-bezier(0.075, 0.82, 0.165, 1)';
             }
         },
-        shuffleCards: function(e) {
-            e.stopPropagation();
+        shuffleCards: function(e, cardName) {
+            if (e !== null) {
+                e.stopPropagation();
+            }
             let index = 0;
-            let deck = document.getElementsByClassName('card');
+            let deck = document.getElementsByClassName(cardName);
             let value = 0;
             deck.forEach(card => {
                 if (index % 2 === 0) {
@@ -71,29 +92,20 @@ const DeckFunctions = {
                 index++;
             });
             },
-        collectAllCards: function(e) {
-            e.stopPropagation();
-            let deck = document.getElementsByClassName('card');
+        collectAllCards: function(e, cardName) {
+            if (e !== null) {
+                e.stopPropagation();
+            }
+            let deck = document.getElementsByClassName(cardName);
             let extra_y = 0;
         
             deck.forEach(card => {
                 let current_position = this.calculateElementPosition(card);
                 let newXPosition = (window.innerWidth / 2) - current_position.left - (card.offsetWidth / 2);
                 let newYPosition = (window.innerHeight / 2) - current_position.top - extra_y - (card.offsetHeight / 2);
-                card.style.transition = '';
-                card.style.transform = `translate(${newXPosition}px, ${newYPosition}px)`;
-                card.currentX = newXPosition;
-                card.currentY = newYPosition;
-                extra_y += 1;
-            });
-        },
-        collectDeckCards: function() {
-            let deck = document.getElementsByClassName('deck-card');
-            let extra_y = 0;
-        
-            deck.forEach(card => {
-                let newXPosition = 0;
-                let newYPosition = -extra_y;
+                if (card.classList.contains('is-flipped')) {
+                    card.classList.toggle('is-flipped');
+                }
                 card.style.transition = '';
                 card.style.transform = `translate(${newXPosition}px, ${newYPosition}px)`;
                 card.currentX = newXPosition;
@@ -114,11 +126,13 @@ const DeckFunctions = {
                 if (this.dealtCards.get(url) === undefined) {
                     let oldPosition = this.calculateElementPosition(card);
                     let newXPosition = newPosition.left - oldPosition.left + 60;
-                    let newYPosition = newPosition.top - oldPosition.top + 1;
+                    let newYPosition = newPosition.top - oldPosition.top;
                     card.style.transition = 'transform .5s';
                     card.style.transform = `translate(${newXPosition}px, ${newYPosition}px)`;
                     card.currentX = newXPosition;
                     card.currentY = newYPosition;
+
+                    // Checks if the card has already been revealed before to make effect work
                     if (alreadyToggled) {
                         setTimeout(() => {
                             adjacentCard.classList.toggle('is-flipped');
@@ -138,8 +152,8 @@ const DeckFunctions = {
                 }
             }
         },
-        moveToOriginalPosition: function() {
-            let deck = document.getElementsByClassName('card');
+        moveToOriginalPosition: function(cardName) {
+            let deck = document.getElementsByClassName(cardName);
 
             deck.forEach(card => {
                 let newXPosition = 0;
