@@ -69,6 +69,9 @@ export default {
       this.finalUrl = card;
       this.addCardValue(this.finalUrl);
     });
+    EventBus.$on('send total', () => {
+      EventBus.$emit('handle win', this.name, this.total);
+    });
   },
   data() {
     return {

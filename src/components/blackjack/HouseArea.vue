@@ -1,20 +1,23 @@
 <template>
     <div class="player-field">
         <h3> {{this.name}} </h3>
+        <h3> {{this.total}} </h3>
         <div class="house-hand"> 
-          <div class="card" :id="name + n" v-for="n in 3" v-on:click="flipCard" v-bind:key=n :url=urls[n] >
+          <div class="card" :id="name + (n-1)" v-for="n in 3" v-on:click="flipCard" v-bind:key=n :url=dealtUrls[n-1]>
             <img class="card__face card__face--front" :src='require("../../assets/Cards/1B.svg")'  />
-            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${urls[n]}.svg`)' />
+            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${dealtUrls[n-1]}.svg`)' />
           </div>
           <div>
-            <div class="deck-card" v-for="n in 20" v-on:click="flipCard" v-bind:key=n :url=urls[n] >
+            <div class="deck-card" v-for="n in 20" v-on:click="flipCard" v-bind:key=n :url=givenUrls[n-1]>
                 <img class="card__face card__face--front" :src='require("../../assets/Cards/1B.svg")'  />
-                <img class="card__face card__face--back" :src='require(`../../assets/Cards/${urls[n]}.svg`)' />
+                <img class="card__face card__face--back" :src='require(`../../assets/Cards/1B.svg`)' />
             </div>
           </div>
         </div>
-        <button v-on:click="collectCards($event, 'deck-card')"> Make Deck </button>
-        <button v-on:click="initiateDealCard"> Deal Card </button>
+        <div v-if="canChoose">
+          <button v-on:click="moveToNextPlayer"> Stay </button>
+          <button v-on:click="initiateDealCard"> Hit </button>
+        </div>
     </div>
 </template>
 
@@ -33,20 +36,53 @@ export default {
     initiateDealCard: function() {
       this.$socket.emit('deal card');
     },
+    handleHouseTurn: function() {
+      this.addCardValue(this.dealtUrls[1]);
+      let card = document.getElementById(`${this.name}1`);
+      card.classList.togglet('is-flipped');
+      if (this.total < 17) {
+        this.handleDealToHouse();
+      }
+      EventBus.$emit('send total');
+      EventBus.$emit('handle win', this.name, this.total);
+    },
+    handleDealToHouse: function() {
+      let houseToggled = false;
+      while (this.total < 17) {
+        let houseCard = `${this.name}2`;
+        let url = this.moveCardToPlayer(houseCard, houseToggled);
+        houseToggled = true;
+        this.addCardValue(url);
+      }
+    },
     handleDealCard: function() {
-      // Only sends card to player if they haven't lost yet
-      if (this.playersLost.indexOf(this.currentPlayer) == -1) {
+      // Only sends card to player if they haven't lost or stayed yet
+      if (this.playersToDeal[this.currentPlayer - 1]) {
         let playerCard = `P${this.currentPlayer}2`;
         let url = this.moveCardToPlayer(playerCard, this.toggled);
         this.sendCardToPlayer(`P${this.currentPlayer}`, url);
       }
 
       // Changes the current player to the next one in the order
+      this.moveToNextPlayer();
+    },
+    handleStayPlayer: function() {
+      this.playersToDeal[this.currentPlayer] = false;
+      this.moveToNextPlayer();
+    },
+    moveToNextPlayer: function() {
       if (this.currentPlayer !== this.players) {
         this.currentPlayer += 1;
+        this.enableActions();
       } else {
-        this.currentPlayer = 1;
-        this.toggled = true;
+        this.hanldeHouseTurn();
+      }
+    },
+    enableActions: function() {
+      if (this.user.localeCompare(`P${this.currentPlayer}`) === 0 && this.playersToDeal[this.currentPlayer - 1]) {
+        this.canChoose = true;
+      } else {
+        this.canChoose = false;
       }
     },
     sendCardToPlayer: function(player, url) {
@@ -60,23 +96,40 @@ export default {
       currentCard.style.transition = 'transform 1s';
       currentCard.classList.toggle('is-flipped');
     },
+    initializeHand: function() {
+      this.addCardValue(this.dealtUrls[0]);
+      let card = document.getElementById(`${this.name}0`);
+      card.classList.toggle('is-flipped');
+      this.enableActions();
+    },
+    addCardValue: function(url) {
+      // Gets char value from string and converts to a number to add to the total
+      let char = url.substring(0, 1);
+      let value = this.getValue(char);
+      this.total += value;
+    },
     reset: function() {
       this.shuffleUrls();
-      this.givenUrls = this.getUrls();
+      let urls = this.getUrls();
       if (this.user.localeCompare('P1') === 0) {
         setTimeout(() => {
-          this.$socket.emit('store cards', this.givenUrls);
+          this.$socket.emit('store cards', urls);
         }, 2000);
       }
-      this.playersLost = [];
+      this.playersToNotDeal = [true, true, true, true];
       this.currentPlayer = 1;
       this.toggled = false;
+      this.total = 0;
     },
   },
   created() {
     this.reset();
-    this.$socket.on('send house cards', houseUrls => {
+    this.$socket.on('send house cards', (houseUrls, dealtCards) => {
       this.givenUrls = houseUrls;
+      this.dealtUrls = dealtCards;
+      setTimeout(() => {
+        this.initializeHand();
+      }, 500);
     });
     this.$socket.on('handle deal', () => {
       this.handleDealCard();
@@ -86,15 +139,18 @@ export default {
     });
     EventBus.$on('player lost', name => {
       let convertedValue = Number(name.substring(1, 2));
-      this.playersLost.push(convertedValue);
+      this.playersToDeal[convertedValue - 1] = false;
     });
   },
   data() {
     return {
-      givenUrls: [],
+      givenUrls: ['3C'],
+      dealtUrls: ['1B', '1B', '1B'],
       toggled: false,
       currentPlayer: 1,
-      playersLost: []
+      playersToDeal: [true, true, true, true],
+      canChoose: false,
+      total: 0
     }
   }
 }
