@@ -15,7 +15,7 @@
           </div>
         </div>
         <div v-if="canChoose">
-          <button v-on:click="moveToNextPlayer"> Stay </button>
+          <button v-on:click="handleStayPlayer"> Stay </button>
           <button v-on:click="initiateDealCard"> Hit </button>
         </div>
     </div>
@@ -37,9 +37,10 @@ export default {
       this.$socket.emit('deal card');
     },
     handleHouseTurn: function() {
+      this.canChoose = false;
       this.addCardValue(this.dealtUrls[1]);
       let card = document.getElementById(`${this.name}1`);
-      card.classList.togglet('is-flipped');
+      card.classList.toggle('is-flipped');
       if (this.total < 17) {
         this.handleDealToHouse();
       }
@@ -62,20 +63,20 @@ export default {
         let url = this.moveCardToPlayer(playerCard, this.toggled);
         this.sendCardToPlayer(`P${this.currentPlayer}`, url);
       }
-
-      // Changes the current player to the next one in the order
-      this.moveToNextPlayer();
+      this.toggled = true;
     },
     handleStayPlayer: function() {
-      this.playersToDeal[this.currentPlayer] = false;
+      this.$socket.emit('change turn', this.currentPlayer + 1);
+      this.playersToDeal[this.currentPlayer - 1] = false;
       this.moveToNextPlayer();
     },
     moveToNextPlayer: function() {
       if (this.currentPlayer !== this.players) {
         this.currentPlayer += 1;
         this.enableActions();
+        this.toggled = false;
       } else {
-        this.hanldeHouseTurn();
+        this.handleHouseTurn();
       }
     },
     enableActions: function() {
@@ -109,17 +110,17 @@ export default {
       this.total += value;
     },
     reset: function() {
-      this.shuffleUrls();
-      let urls = this.getUrls();
+      this.playersToDeal = [true, true, true, true];
+      this.currentPlayer = 1;
+      this.toggled = false;
+      this.total = 0;
       if (this.user.localeCompare('P1') === 0) {
+        this.shuffleUrls();
+        let urls = this.getUrls();
         setTimeout(() => {
           this.$socket.emit('store cards', urls);
         }, 2000);
       }
-      this.playersToNotDeal = [true, true, true, true];
-      this.currentPlayer = 1;
-      this.toggled = false;
-      this.total = 0;
     },
   },
   created() {
@@ -137,9 +138,15 @@ export default {
     this.$socket.on('reset', () => {
       this.reset();
     });
+    this.$socket.on('next player', (player) => {
+      if (this.user.localeCompare(`P${player}`) === 0) {
+        this.moveToNextPlayer();
+      }
+    });
     EventBus.$on('player lost', name => {
       let convertedValue = Number(name.substring(1, 2));
       this.playersToDeal[convertedValue - 1] = false;
+      this.moveToNextPlayer();
     });
   },
   data() {

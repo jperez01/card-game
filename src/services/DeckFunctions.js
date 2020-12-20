@@ -1,9 +1,10 @@
 import {EventBus} from '../main';
+import GlobalData from './GlobalData';
 
 const DeckFunctions = {
     created: function() {
         this.currentCard = null;
-        this.dealtCards = new Map();
+        this.dealtCards = GlobalData.dealtCards;
     },
     methods: {
         getCurrentData: function(e) {
@@ -26,9 +27,9 @@ const DeckFunctions = {
         },
         resetBlackjack: function(e, time1, time2) {
             EventBus.$emit('loading', null);
+            this.resetCardVisibility();
             this.collectAllCards(e, 'card');
             this.collectAllCards(e, 'deck-card');
-            this.resetCardVisibility();
             setTimeout(() => {
             this.shuffleCards(e, 'card');
             this.shuffleCards(e, 'deck-card');
@@ -40,8 +41,9 @@ const DeckFunctions = {
         },
         resetCardVisibility: function() {
             this.dealtCards.forEach(card => {
-                card.style.visibility = '';
+                card.style.visibility = 'visible';
             });
+            this.dealtCards.clear();
         },
         moveCard: function(e) {
             if (this.currentCard !== null) {
@@ -131,6 +133,7 @@ const DeckFunctions = {
                     card.style.transform = `translate(${newXPosition}px, ${newYPosition}px)`;
                     card.currentX = newXPosition;
                     card.currentY = newYPosition;
+                    this.dealtCards.set(url, card);
 
                     // Checks if the card has already been revealed before to make effect work
                     if (alreadyToggled) {
@@ -147,7 +150,6 @@ const DeckFunctions = {
                             adjacentCard.classList.toggle('is-flipped');
                         }, 900);
                     }
-                    this.dealtCards.set(url, card);
                     return url;
                 }
             }

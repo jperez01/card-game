@@ -7,6 +7,9 @@
         <SidePlayerArea v-if="active[2]" :name=names[2] class="right-player" />
         <button v-on:click="reset"> Collect Cards </button>
         <button v-on:click="moveToOriginalPosition"> Spread Cards </button>
+        <div v-if="showWinner">
+            <h3> Winner: {{winner}}</h3>
+        </div>
     </div>
 </template>
 
@@ -47,18 +50,18 @@ export default {
             }
         }
       },
-      reset: function(e) {
+      reset: function() {
           this.$socket.emit('reset');
-          this.resetBlackjack(e, 500, 2100);
           EventBus.$emit('reset');
           this.numOfTotals = 0;
           this.lost = [false, false, false, false];
           this.totals = [];
+          this.showWinner = false;
       },
       handleWin: function() {
         let winningNumber = 0;
         let index = 0;
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < this.players; i++) {
             if (this.totals[i] < 21 && this.totals[i] > winningNumber) {
                 winningNumber = this.totals[i];
                 index = i;
@@ -70,12 +73,12 @@ export default {
         if (this.totals[5] <= 21 && this.totals[5] > winningNumber) {
             this.enableWinner('House');
         } else {
-            this.enableWinner(`P${index}`);
+            this.enableWinner(`P${index + 1}`);
         }
       },
       enableWinner: function(name) {
           this.winner = name;
-          this.showWinner;
+          this.showWinner = true;
       }
   },
   created() {
@@ -92,7 +95,7 @@ export default {
               this.totals[index] = total;
           }
           this.numOfTotals++;
-          if (this.numOfTotals === 5) {
+          if (this.numOfTotals === this.players + 1) {
             this.handleWin();
           }
       });
