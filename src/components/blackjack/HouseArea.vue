@@ -44,8 +44,10 @@ export default {
       if (this.total < 17) {
         this.handleDealToHouse();
       }
-      EventBus.$emit('send total');
-      EventBus.$emit('handle win', this.name, this.total);
+      setTimeout(() => {
+        EventBus.$emit('send total');
+        EventBus.$emit('handle win', this.name, this.total);
+      }, 2000);
     },
     handleDealToHouse: function() {
       let houseToggled = false;
@@ -71,11 +73,13 @@ export default {
       this.moveToNextPlayer();
     },
     moveToNextPlayer: function() {
+      console.log("Moved to other player");
       if (this.currentPlayer !== this.players) {
         this.currentPlayer += 1;
         this.enableActions();
         this.toggled = false;
       } else {
+        this.alreadyHouseTurn = true;
         this.handleHouseTurn();
       }
     },
@@ -110,6 +114,7 @@ export default {
       this.total += value;
     },
     reset: function() {
+      this.alreadyHouseTurn = false;
       this.playersToDeal = [true, true, true, true];
       this.currentPlayer = 1;
       this.toggled = false;
@@ -139,7 +144,10 @@ export default {
       this.reset();
     });
     this.$socket.on('next player', (player) => {
-      if (this.user.localeCompare(`P${player}`) === 0) {
+      let result = this.user.localeCompare(`P${player}`);
+      if (result === 0) {
+        this.moveToNextPlayer();
+      } else if (player > this.players && !this.alreadyHouseTurn) {
         this.moveToNextPlayer();
       }
     });
@@ -157,7 +165,8 @@ export default {
       currentPlayer: 1,
       playersToDeal: [true, true, true, true],
       canChoose: false,
-      total: 0
+      total: 0,
+      alreadyHouseTurn: false
     }
   }
 }

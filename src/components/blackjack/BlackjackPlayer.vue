@@ -54,26 +54,28 @@ export default {
           this.$socket.emit('reset');
           EventBus.$emit('reset');
           this.numOfTotals = 0;
-          this.lost = [false, false, false, false];
           this.totals = [];
           this.showWinner = false;
       },
       handleWin: function() {
+        console.log(this.totals);
         let winningNumber = 0;
         let index = 0;
-        for (let i = 0; i < this.players; i++) {
+        for (let i = 0; i < this.players + 1; i++) {
             if (this.totals[i] < 21 && this.totals[i] > winningNumber) {
                 winningNumber = this.totals[i];
                 index = i;
             } else if (this.totals[i] === 21) {
-                this.enableWinner(`P${i + 1}`);
+                this.enableWinner(`P${i}`);
                 break;
             }
+            console.log("Winning number: " + winningNumber);
+            console.log("Index: " + index);
         }
         if (this.totals[5] <= 21 && this.totals[5] > winningNumber) {
             this.enableWinner('House');
         } else {
-            this.enableWinner(`P${index + 1}`);
+            this.enableWinner(`P${index}`);
         }
       },
       enableWinner: function(name) {
@@ -85,6 +87,9 @@ export default {
       this.setAreasActive();
       this.setPlayerNames();
       this.$socket.on('reset', () => {
+          this.numOfTotals = 0;
+          this.totals = [];
+          this.showWinner = false;
           this.resetBlackjack(null, 500, 2100);
       });
       EventBus.$on('handle win', (name, total) => {
