@@ -58,7 +58,6 @@ export default {
           this.showWinner = false;
       },
       handleWin: function() {
-        console.log(this.totals);
         let winningNumber = 0;
         let index = 0;
         for (let i = 0; i < this.players + 1; i++) {
@@ -69,8 +68,6 @@ export default {
                 this.enableWinner(`P${i}`);
                 break;
             }
-            console.log("Winning number: " + winningNumber);
-            console.log("Index: " + index);
         }
         if (this.totals[5] <= 21 && this.totals[5] > winningNumber) {
             this.enableWinner('House');
@@ -79,8 +76,7 @@ export default {
         }
       },
       enableWinner: function(name) {
-          this.winner = name;
-          this.showWinner = true;
+          EventBus.$emit('winner', name);
       }
   },
   created() {

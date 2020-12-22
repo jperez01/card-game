@@ -56,4 +56,22 @@ export default {
   height: 160px;
   transform: rotateY(180deg);
 }
+
+.game-text {
+  text-align: center;
+  font-family: 'Comm Bold';
+  color: white;
+}
+
+.game-info {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  background-color: rgba(0, 0, 0, 0.5);
+}
 </style>
