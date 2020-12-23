@@ -70,10 +70,8 @@ export default {
     handleStayPlayer: function() {
       this.$socket.emit('change turn', this.currentPlayer + 1);
       this.playersToDeal[this.currentPlayer - 1] = false;
-      this.moveToNextPlayer();
     },
     moveToNextPlayer: function() {
-      console.log("Moved to other player");
       if (this.currentPlayer !== this.players) {
         this.currentPlayer += 1;
         this.enableActions();
@@ -102,6 +100,7 @@ export default {
       currentCard.classList.toggle('is-flipped');
     },
     initializeHand: function() {
+      this.total = 0;
       this.addCardValue(this.dealtUrls[0]);
       let card = document.getElementById(`${this.name}0`);
       card.classList.toggle('is-flipped');
@@ -117,8 +116,8 @@ export default {
       this.alreadyHouseTurn = false;
       this.playersToDeal = [true, true, true, true];
       this.currentPlayer = 1;
-      this.toggled = false;
       this.total = 0;
+      this.toggled = false;
       if (this.user.localeCompare('P1') === 0) {
         this.shuffleUrls();
         let urls = this.getUrls();
@@ -140,14 +139,12 @@ export default {
     this.$socket.on('handle deal', () => {
       this.handleDealCard();
     });
-    this.$socket.on('reset', () => {
+    EventBus.$on('reset', () => {
       this.reset();
     });
     this.$socket.on('next player', (player) => {
       let result = this.user.localeCompare(`P${player}`);
-      if (result === 0) {
-        this.moveToNextPlayer();
-      } else if (player > this.players && !this.alreadyHouseTurn) {
+      if (result === 0 || !this.alreadyHouseTurn) {
         this.moveToNextPlayer();
       }
     });

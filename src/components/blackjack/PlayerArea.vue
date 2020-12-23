@@ -31,6 +31,7 @@ export default {
       currentCard.classList.toggle('is-flipped');
     },
     initializeHand: function() {
+      this.total = 0;
       this.addCardValue(this.urls[0]);
       this.addCardValue(this.urls[1]);
       let card1 = document.getElementById(`${this.name}0`);
@@ -58,7 +59,7 @@ export default {
     }
   },
   created() {
-    this.$socket.on('reset', () => {
+    EventBus.$on('reset player', () => {
       this.reset();
     });
     this.$socket.on('get cards ' + this.name, cards => {
@@ -75,8 +76,6 @@ export default {
   },
   data() {
     return {
-      playing: false,
-      spectating: false,
       urls: ['3C', '3C', '3C'],
       finalUrl: '3C',
       total: 0,

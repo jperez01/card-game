@@ -3,8 +3,8 @@
         <HouseArea :name='"House"' :user=names[0] :players="this.players" class="house" />
         <PlayerArea :name=names[0] class="main-player" />
         <SidePlayerArea v-if="active[0]" :name=names[1] class="left-player" />
-        <SidePlayerArea v-if="active[1]" :name=names[3] class="top-player" />
-        <SidePlayerArea v-if="active[2]" :name=names[2] class="right-player" />
+        <SidePlayerArea v-if="active[1]" :name=names[2] class="top-player" />
+        <SidePlayerArea v-if="active[2]" :name=names[3] class="right-player" />
         <button v-on:click="reset"> Collect Cards </button>
         <button v-on:click="moveToOriginalPosition"> Spread Cards </button>
         <div v-if="showWinner">
@@ -51,8 +51,6 @@ export default {
         }
       },
       reset: function() {
-          this.$socket.emit('reset');
-          EventBus.$emit('reset');
           this.numOfTotals = 0;
           this.totals = [];
           this.showWinner = false;
@@ -82,7 +80,13 @@ export default {
   created() {
       this.setAreasActive();
       this.setPlayerNames();
-      this.$socket.on('reset', () => {
+      EventBus.$on('reset field', () => {
+        this.active = [];
+        this.names = [];
+        this.setAreasActive();
+        this.setPlayerNames();
+      });
+      EventBus.$on('reset player', () => {
           this.numOfTotals = 0;
           this.totals = [];
           this.showWinner = false;

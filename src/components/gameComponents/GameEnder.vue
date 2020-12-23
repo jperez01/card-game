@@ -8,30 +8,38 @@
 </template>
 
 <script>
+import { EventBus } from '../../main';
+
 export default {
   name: 'GameEnder',
   props: ['winner'],
   methods: {
       enableReset: function() {
         this.reset = true;
-        this.$socket.emit('enable reset', null);
+        console.log("Enabling Reset by sending to server");
+        this.$socket.emit('enable reset');
       },
       checkToReset: function() {
         this.gameStarted = this.inRoomUsers === this.readyUsers;
         if (this.gameStarted) {
-            this.$socket.emit('game started', null);
-            this.$emit('startGame');
+          this.inRoomUsers = 0;
+          this.readyUsers = 0;
+          EventBus.$emit('reset field');
+          setTimeout(() => {
+            EventBus.$emit('reset player');
+          }, 500);
+          setTimeout(() => {
+            EventBus.$emit('reset');
+            this.reset = false;
+          }, 2000);
         }
     }
   },
   created() {
     this.$socket.on('room users', numUsers => {
-      console.log(numUsers);
       this.inRoomUsers = numUsers;
-      this.checkToReset();
     });
     this.$socket.on('current ready', readyUsers => {
-      console.log(readyUsers);
       this.readyUsers = readyUsers;
       this.checkToReset();
     });

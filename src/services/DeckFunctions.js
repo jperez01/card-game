@@ -1,4 +1,3 @@
-import {EventBus} from '../main';
 import GlobalData from './GlobalData';
 
 const DeckFunctions = {
@@ -16,7 +15,6 @@ const DeckFunctions = {
             }
         },
         resetField: function(e, time1, time2) {
-            EventBus.$emit('loading', null);
             this.collectAllCards(e, 'card');
             setTimeout(() => {
             this.shuffleCards(e, 'card');
@@ -26,7 +24,6 @@ const DeckFunctions = {
             }, time2);
         },
         resetBlackjack: function(e, time1, time2) {
-            EventBus.$emit('loading', null);
             this.resetCardVisibility();
             this.collectAllCards(e, 'card');
             this.collectAllCards(e, 'deck-card');
@@ -164,7 +161,6 @@ const DeckFunctions = {
                 card.currentX = newXPosition;
                 card.currentY = newYPosition;
             });
-            EventBus.$emit('loading', null);
         },
         calculateElementPosition: function(element) {
             var top = 0, left = 0;

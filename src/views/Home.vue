@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import GlobalData from '../services/GlobalData';
 
 export default {
   name: 'Home',
@@ -38,21 +39,20 @@ export default {
   },
   created() {
     this.socket = this.$socket;
-    this.socket.on('created', data => {
-      this.roomID = data;
+    this.socket.on('created', (roomID, name) => {
+      GlobalData.name = `P${name}`;
+      GlobalData.roomID = roomID;
+      this.roomID = roomID;
     });
     this.socket.on('enough players', () => {
       this.enableMultiplayer();
     })
-    this.socket.on('joined room', () => {
+    this.socket.on('joined room', (name) => {
+      GlobalData.name = `P${name}`;
+      GlobalData.roomID = this.potentialId;
       this.roomID = this.potentialId;
       this.enableMultiplayer();
     });
-    this.socket.on('Hello', () => {
-      console.log('Greeting received');
-    });
-  },
-  beforeDestroy() {
   },
   data() {
     return {

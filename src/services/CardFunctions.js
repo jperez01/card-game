@@ -42,7 +42,6 @@ const CardFunctions = {
             });
         },
         shuffleUrls: function() {
-            console.log(this.urls);
             let i = this.urls.length,
             j = 0,
             temp;
@@ -55,7 +54,6 @@ const CardFunctions = {
                 this.urls[j] = temp;
     
             }
-            console.log(this.urls);
         },
         shuffleGivenUrls: function(givenUrls) {
             let i = givenUrls.length,
