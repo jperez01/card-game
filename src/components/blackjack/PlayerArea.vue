@@ -18,11 +18,33 @@
 <script>
 import { EventBus } from '../../main';
 import CardFunctions from '../../services/CardFunctions';
+import { setState } from 'vuex';
 
 export default {
   name: 'PlayerArea',
   mixins: [CardFunctions],
   props: ['name'],
+  computed:{
+    ...mapState({
+      finalUrl (state) {
+        return state[this.name].finalUrl
+      },
+      urls (state) {
+        return state[this.name].urls
+      },
+      total (state) {
+        return state[this.name].total
+      }
+    })
+  },
+  watch: {
+    urls () {
+      this.initializeHand();
+    },
+    finalUrl (newUrl, oldUrl) {
+      this.addCardValue(newUrl);
+    }
+  },
   methods: {
     flipCard: function(e) {
       e.stopPropagation();
@@ -43,14 +65,17 @@ export default {
       // Gets char value from string and converts to a number to add to the total
       let char = url.substring(0, 1);
       let value = this.getValue(char);
-      this.total += value;
+      let newTotal = this.total + value;
+      let payload = {
+        player: this.name,
+        newTotal
+      }
+      this.$store.commit('setHouseTotal', payload);
 
       // Checks current total for each player to see their result
       if (this.total > 21) {
         EventBus.$emit('player lost', this.name);
         this.lost = true;
-      } else if (this.total === 21) {
-        this.$socket.emit('player won', this.name);
       }
     },
     reset: function() {
@@ -63,12 +88,11 @@ export default {
       this.reset();
     });
     this.$socket.on('get cards ' + this.name, cards => {
-      this.urls = cards;
-      this.initializeHand();
-    });
-    EventBus.$on('dealt card ' + this.name, card => {
-      this.finalUrl = card;
-      this.addCardValue(this.finalUrl);
+      let payload = {
+        player: this.name,
+        newUrls: cards
+      }
+      this.$socket.commit('setPlayerUrls', payload);
     });
     EventBus.$on('send total', () => {
       EventBus.$emit('handle win', this.name, this.total);
@@ -76,9 +100,6 @@ export default {
   },
   data() {
     return {
-      urls: ['3C', '3C', '3C'],
-      finalUrl: '3C',
-      total: 0,
       lost: false
     }
   }

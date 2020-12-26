@@ -9,21 +9,23 @@
 
 <script>
 import { EventBus } from '../../main';
+import { mapState } from 'vuex';
 
 export default {
   name: 'GameEnder',
-  props: ['winner'],
+  computed: {
+    ...mapState(['inRoomUsers', 'readyUsers', 'winner'])
+  },
   methods: {
       enableReset: function() {
         this.reset = true;
-        console.log("Enabling Reset by sending to server");
         this.$socket.emit('enable reset');
       },
       checkToReset: function() {
         this.gameStarted = this.inRoomUsers === this.readyUsers;
         if (this.gameStarted) {
-          this.inRoomUsers = 0;
-          this.readyUsers = 0;
+          this.$store.commit('setInRoomUsers', 0);
+          this.$store.commit('setReadyUsers', 0);
           EventBus.$emit('reset field');
           setTimeout(() => {
             EventBus.$emit('reset player');
@@ -37,18 +39,16 @@ export default {
   },
   created() {
     this.$socket.on('room users', numUsers => {
-      this.inRoomUsers = numUsers;
+      this.$store.commit('setInRoomUsers', numUsers);
     });
     this.$socket.on('current ready', readyUsers => {
-      this.readyUsers = readyUsers;
+      this.$store.commit('setReadyUsers', readyUsers);
       this.checkToReset();
     });
   },
   data() {
       return {
-          reset: false,
-          readyUsers: 0,
-          inRoomUsers: 0,
+        reset: false
       }
   }
 }

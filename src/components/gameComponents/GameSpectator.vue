@@ -8,10 +8,6 @@
 <script>
 
 export default {
-  name: 'GameSpectator',
-  components: {
-  },
-  methods: {
-  }
+  name: 'GameSpectator'
 }
 </script>

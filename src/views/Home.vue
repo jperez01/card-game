@@ -9,55 +9,51 @@
     </div>
     <button v-on:click="sendMessage"> Create Room </button>
     <h3>{{roomID}} </h3>
+    <h3>{{name}} </h3>
     <input v-on:change="collectID">
     <button v-on:click="joinRoom"> Join Room </button>
-    <button v-on:click="sendGreeting"> Send Greeting </button>
   </div>
 </template>
 
 <script>
-import GlobalData from '../services/GlobalData';
+import { mapState } from 'vuex';
 
 export default {
   name: 'Home',
+  computed: {
+    ...mapState(['roomID', 'name'])
+  },
   methods: {
     collectID: function(e) {
-      this.potentialId = e.target.value;
-    },
-    sendGreeting: function() {
-      this.socket.emit('send to users', this.potentialId);
+      this.potentialID = e.target.value;
     },
     sendMessage: function() {
-      this.socket.emit('create room');
+      this.$socket.emit('create room');
     },
     joinRoom: function() {
-      this.socket.emit('join room', this.potentialId);
+      this.$socket.emit('join room', this.potentialID);
     },
     enableMultiplayer: function() {
       this.enabledMult = true;
     }
   },
   created() {
-    this.socket = this.$socket;
-    this.socket.on('created', (roomID, name) => {
-      GlobalData.name = `P${name}`;
-      GlobalData.roomID = roomID;
-      this.roomID = roomID;
+    this.$socket.on('created', (roomID, name) => {
+      this.$store.commit('setName', `P${name}`);
+      this.$store.commit('setRoomID', roomID);
     });
-    this.socket.on('enough players', () => {
+    this.$socket.on('enough players', () => {
       this.enableMultiplayer();
     })
-    this.socket.on('joined room', (name) => {
-      GlobalData.name = `P${name}`;
-      GlobalData.roomID = this.potentialId;
-      this.roomID = this.potentialId;
+    this.$socket.on('joined room', (name) => {
+      this.$store.commit('setName', `P${name}`);
+      this.$store.commit('setRoomID', this.potentialID);
       this.enableMultiplayer();
     });
   },
   data() {
     return {
-      roomID: '',
-      potentialId: '',
+      potentialID: '',
       enabledMult: false
     }
   }

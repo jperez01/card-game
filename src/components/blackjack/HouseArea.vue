@@ -3,9 +3,9 @@
         <h3> {{this.name}} </h3>
         <h3> {{this.total}} </h3>
         <div class="house-hand"> 
-          <div class="card" :id="name + (n-1)" v-for="n in 3" v-on:click="flipCard" v-bind:key=n :url=dealtUrls[n-1]>
+          <div class="card" :id="name + (n-1)" v-for="n in 3" v-on:click="flipCard" v-bind:key=n :url=deckCards[n-1]>
             <img class="card__face card__face--front" :src='require("../../assets/Cards/1B.svg")'  />
-            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${dealtUrls[n-1]}.svg`)' />
+            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${deckCards[n-1]}.svg`)' />
           </div>
           <div>
             <div class="deck-card" v-for="n in 20" v-on:click="flipCard" v-bind:key=n :url=givenUrls[n-1]>
@@ -25,20 +25,27 @@
 import DeckFunctions from '../../services/DeckFunctions';
 import CardFunctions from '../../services/CardFunctions';
 import { EventBus } from '../../main';
+import { mapState } from 'vuex';
 
 export default {
   name: 'HouseArea',
   mixins: [DeckFunctions, CardFunctions],
-  components: {
+  computed: {
+    ...mapState({
+      players: 'inRoomUsers',
+      givenUrls: 'House.givenUrls',
+      deckCards: 'House.deckCards',
+      total: 'House.total'
+    })
   },
-  props: ['name', 'user', 'players'],
+  props: ['name', 'user'],
   methods: {
     initiateDealCard: function() {
       this.$socket.emit('deal card');
     },
     handleHouseTurn: function() {
       this.canChoose = false;
-      this.addCardValue(this.dealtUrls[1]);
+      this.addCardValue(this.deckCards[1]);
       let card = document.getElementById(`${this.name}1`);
       card.classList.toggle('is-flipped');
       if (this.total < 17) {
@@ -63,7 +70,11 @@ export default {
       if (this.playersToDeal[this.currentPlayer - 1]) {
         let playerCard = `P${this.currentPlayer}2`;
         let url = this.moveCardToPlayer(playerCard, this.toggled);
-        this.sendCardToPlayer(`P${this.currentPlayer}`, url);
+        let payload = {
+          player: `P${this.currentPlayer}`,
+          newUrl: url
+        };
+        this.$store.commit('setPlayerFinalUrl', payload);
       }
       this.toggled = true;
     },
@@ -101,7 +112,7 @@ export default {
     },
     initializeHand: function() {
       this.total = 0;
-      this.addCardValue(this.dealtUrls[0]);
+      this.addCardValue(this.deckCards[0]);
       let card = document.getElementById(`${this.name}0`);
       card.classList.toggle('is-flipped');
       this.enableActions();
@@ -110,13 +121,13 @@ export default {
       // Gets char value from string and converts to a number to add to the total
       let char = url.substring(0, 1);
       let value = this.getValue(char);
-      this.total += value;
+      let newTotal = this.total + value;
+      this.$store.commit('setHouseTotal', newTotal);
     },
     reset: function() {
       this.alreadyHouseTurn = false;
       this.playersToDeal = [true, true, true, true];
       this.currentPlayer = 1;
-      this.total = 0;
       this.toggled = false;
       if (this.user.localeCompare('P1') === 0) {
         this.shuffleUrls();
@@ -129,9 +140,9 @@ export default {
   },
   created() {
     this.reset();
-    this.$socket.on('send house cards', (houseUrls, dealtCards) => {
-      this.givenUrls = houseUrls;
-      this.dealtUrls = dealtCards;
+    this.$socket.on('send house cards', (houseUrls, deckCards) => {
+      this.$store.commit('setHouseGivenUrls', houseUrls);
+      this.$store.commit('setHouseDeckCards', deckCards);
       setTimeout(() => {
         this.initializeHand();
       }, 500);
@@ -156,13 +167,10 @@ export default {
   },
   data() {
     return {
-      givenUrls: ['3C'],
-      dealtUrls: ['1B', '1B', '1B'],
       toggled: false,
       currentPlayer: 1,
       playersToDeal: [true, true, true, true],
       canChoose: false,
-      total: 0,
       alreadyHouseTurn: false
     }
   }

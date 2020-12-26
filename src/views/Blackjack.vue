@@ -2,8 +2,8 @@
   <div class="playing-field">
     <GameStarter v-if="!spectating & !playing" />
     <GameSpectator v-if="spectating" />
-    <GameEnder :winner="this.winner" v-if="ended" />
-    <BlackjackPlayer :name="this.name" :players="this.players" v-if="playing" />
+    <GameEnder v-if="ended" />
+    <BlackjackPlayer v-if="playing" />
   </div>
 </template>
 
@@ -13,10 +13,19 @@ import GameEnder from '../components/gameComponents/GameEnder';
 import GameSpectator from '../components/gameComponents/GameSpectator';
 import BlackjackPlayer from '../components/blackjack/BlackjackPlayer';
 import { EventBus } from '../main';
-import GlobalData from '../services/GlobalData';
+import { mapState } from 'vuex';
 
 export default {
   name: 'Blackjack',
+  computed: {
+    ...mapState(['name', 'winner'])
+  },
+  watch: {
+    winner () {
+      this.ended = true;
+      this.$socket.emit('game ended');
+    }
+  },
   components: {
     GameStarter,
     GameSpectator,
@@ -34,10 +43,6 @@ export default {
     }
   },
   created() {
-    this.name = GlobalData.name;
-    this.$socket.on('room users', users => {
-      this.players = users;
-    });
     this.$socket.on('game in progress', () => {
       this.setToSpectator();
     });
@@ -47,18 +52,11 @@ export default {
     this.$socket.on('start game', () => {
       this.setToPlaying();
     });
-    EventBus.$on('winner', name => {
-      this.winner = name;
-      this.$socket.emit('game ended', null);
-      this.ended = true;
-    });
   },
   data() {
     return {
       playing: false,
-      name: '',
       players: 0,
-      winner: '',
       ended: false,
       spectating: false
     }

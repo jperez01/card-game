@@ -18,11 +18,33 @@
 <script>
 import { EventBus } from '../../main';
 import CardFunctions from '../../services/CardFunctions';
+import { mapState } from 'vuex';
 
 export default {
   name: 'SidePlayerArea',
   mixins: [CardFunctions],
   props: ['name'],
+  computed:{
+    ...mapState({
+      finalUrl (state) {
+        return state[this.name].finalUrl
+      },
+      urls (state) {
+        return state[this.name].urls
+      },
+      total (state) {
+        return state[this.name].total
+      }
+    })
+  },
+  watch: {
+    urls () {
+      this.initializeHand();
+    },
+    finalUrl (newUrl, oldUrl) {
+      this.addCardValue(newUrl);
+    }
+  },
   methods: {
     flipCard: function(e) {
       e.stopPropagation();
@@ -49,13 +71,10 @@ export default {
       if (this.total > 21) {
         EventBus.$emit('player lost', this.name);
         this.lost = true;
-      } else if (this.total === 21) {
-        this.$socket.emit('player won', this.name);
       }
     },
     reset: function() {
       this.total = 0;
-      this.lost = false;
     }
   },
   created() {
@@ -63,12 +82,11 @@ export default {
       this.reset();
     });
     this.$socket.on('get cards ' + this.name, cards => {
-      this.urls = cards;
-      this.initializeHand();
-    });
-    EventBus.$on('dealt card ' + this.name, card => {
-      this.finalUrl = card;
-      this.addCardValue(this.finalUrl);
+      let payload = {
+        player: this.name,
+        newUrls: cards
+      }
+      this.$socket.commit('setPlayerUrls', payload);
     });
     EventBus.$on('send total', () => {
       EventBus.$emit('handle win', this.name, this.total);
@@ -77,11 +95,7 @@ export default {
   data() {
     return {
       playing: false,
-      spectating: false,
-      urls: ['3C', '3C', '3C', '3C'],
-      finalUrl: '3C',
-      total: 0,
-      lost: false
+      spectating: false
     }
   }
 }

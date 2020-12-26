@@ -7,9 +7,6 @@
         <SidePlayerArea v-if="active[2]" :name=names[3] class="right-player" />
         <button v-on:click="reset"> Collect Cards </button>
         <button v-on:click="moveToOriginalPosition"> Spread Cards </button>
-        <div v-if="showWinner">
-            <h3> Winner: {{winner}}</h3>
-        </div>
     </div>
 </template>
 
@@ -19,11 +16,17 @@ import HouseArea from './HouseArea';
 import PlayerArea from './PlayerArea';
 import SidePlayerArea from './SidePlayerArea';
 import DeckFunctions from '../../services/DeckFunctions';
+import { mapState } from 'vuex';
 
 export default {
   name: 'BlackjackPlayer',
   mixins: [DeckFunctions],
-  props: ['name', 'players'],
+  computed: {
+      ...mapState({
+          name: 'name',
+          players: 'inRoomUsers'
+      })
+  },
   components: {
       PlayerArea,
       SidePlayerArea,
@@ -53,7 +56,6 @@ export default {
       reset: function() {
           this.numOfTotals = 0;
           this.totals = [];
-          this.showWinner = false;
       },
       handleWin: function() {
         let winningNumber = 0;
@@ -74,7 +76,7 @@ export default {
         }
       },
       enableWinner: function(name) {
-          EventBus.$emit('winner', name);
+         this.$store.commit('setWinner', name);
       }
   },
   created() {
@@ -89,7 +91,6 @@ export default {
       EventBus.$on('reset player', () => {
           this.numOfTotals = 0;
           this.totals = [];
-          this.showWinner = false;
           this.resetBlackjack(null, 500, 2100);
       });
       EventBus.$on('handle win', (name, total) => {
@@ -110,9 +111,7 @@ export default {
       names: [],
       active: [],
       totals: [],
-      numOfTotals: 0,
-      winner: '',
-      showWinner: false
+      numOfTotals: 0
     }
   }
 }
