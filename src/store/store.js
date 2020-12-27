@@ -11,29 +11,64 @@ export const store = new Vuex.Store({
         inRoomUsers: 0,
         readyUsers: 0,
         P1: {
-            urls: [],
-            finalUrl: null,
+            urls: ['3C', '3C', '3C'],
+            finalUrl: '3C',
             total: 0
         },
         P2: {
-            urls: [],
-            finalUrl: null,
+            urls: ['3C', '3C', '3C'],
+            finalUrl: '3C',
             total: 0
         },
         P3: {
-            urls: [],
-            finalUrl: null,
+            urls: ['3C', '3C', '3C'],
+            finalUrl: '3C',
             total: 0
         },
         P4: {
-            urls: [],
-            finalUrl: null,
+            urls: ['3C', '3C', '3C'],
+            finalUrl: '3C',
             total: 0
         },
         House: {
-            givenUrls: [],
-            deckCards: [],
+            givenUrls: ['3C', '3C', '3C'],
+            deckCards: ['3C', '3C', '3C'],
             total: 0
+        }
+    },
+    actions: {
+        dealToPlayer (context, payload) {
+            setTimeout(() => {
+                context.commit('setPlayerFinalUrl', payload);
+            }, 500);
+        },
+        finalizeHouseTotal (context, newTotal) {
+            setTimeout(() => {
+                context.commit('setHouseTotal', newTotal);
+            }, 2000);
+        },
+        resetAllTotals (context) {
+            let payload = {
+                player: 'P1',
+                total: 0
+            }
+            context.commit('setPlayerTotal', payload);
+            payload = {
+                player: 'P2',
+                total: 0
+            }
+            context.commit('setPlayerTotal', payload);
+            payload = {
+                player: 'P3',
+                total: 0
+            }
+            context.commit('setPlayerTotal', payload);
+            payload = {
+                player: 'P4',
+                total: 0
+            }
+            context.commit('setPlayerTotal', payload);
+            context.commit('setHouseTotal', 0);
         }
     },
     mutations: {

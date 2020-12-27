@@ -1,17 +1,24 @@
 <template>
   <div id="app" class="field">
-    <h3 class="title"> Games </h3>
-    <router-link class="link" to="/matching"> Matching </router-link>
-    <router-link class="link" to="/test"> Test </router-link>
-    <div class="multiplayer" v-if="this.enabledMult"> 
-      <h3 class="type"> Multiplayer </h3>
-      <router-link class="link" to="/blackjack"> Blackjack </router-link>
+    <div class="section">
+      <h3 class="type"> Single Player Games </h3>
+      <router-link class="link" to="/matching"> Matching </router-link>
     </div>
-    <button v-on:click="sendMessage"> Create Room </button>
-    <h3>{{roomID}} </h3>
-    <h3>{{name}} </h3>
-    <input v-on:change="collectID">
-    <button v-on:click="joinRoom"> Join Room </button>
+    <div class="section">
+      <h3 class="type"> Multiplayer Games </h3>
+      <div class="centered-items" v-if="this.showDetails">
+        <h3 class="text"> Room ID: {{roomID}} </h3>
+        <h3 class="text"> Player: {{name}} </h3>
+      </div>
+      <div class="centered-items" v-if="this.enabledMult">
+        <router-link v-if="this.enabledMult" class="link" to="/blackjack"> Blackjack </router-link>
+      </div>
+      <div class="centered-items" v-if="!this.showDetails">
+        <button class="button" v-on:click="sendMessage"> Create Room </button>
+        <input class="input" v-on:change="collectID">
+        <button class="button" v-on:click="joinRoom"> Join Room </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -41,6 +48,7 @@ export default {
     this.$socket.on('created', (roomID, name) => {
       this.$store.commit('setName', `P${name}`);
       this.$store.commit('setRoomID', roomID);
+      this.showDetails = true;
     });
     this.$socket.on('enough players', () => {
       this.enableMultiplayer();
@@ -48,13 +56,15 @@ export default {
     this.$socket.on('joined room', (name) => {
       this.$store.commit('setName', `P${name}`);
       this.$store.commit('setRoomID', this.potentialID);
+      this.showDetails = true;
       this.enableMultiplayer();
     });
   },
   data() {
     return {
       potentialID: '',
-      enabledMult: false
+      enabledMult: false,
+      showDetails: false
     }
   }
 }
@@ -67,28 +77,69 @@ export default {
   width: 100vw;
   display: flex;
   background-color: #45a173;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  justify-content: center;
 }
 
 .link {
-    height: 25px;
-    text-align: center;
-    font-family: 'Comm Bold';
-    color: white;
-    font-size: 20px;
-    padding: 10px;
-    margin: 20px;
-    text-decoration: none;
-    border: 1px solid white;
+  height: 25px;
+  text-align: center;
+  font-family: 'Comm Bold';
+  color: white;
+  font-size: 20px;
+  padding: 10px;
+  margin: 20px;
+  text-decoration: none;
+  border: 1px solid white;
 }
 
 .link:hover {
   background-color:rgba(66, 65, 65, .4);
 }
 
-.multiplayer {
-  min-height: 15vh;
+.button {
+  text-align: center;
+  font-family: 'Comm Bold';
+  color: white;
+  font-size: 20px;
+  padding: 10px;
+  margin: 20px;
+  text-decoration: none;
+  border: 1px solid white;
+  background: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color:rgba(66, 65, 65, .4);
+}
+
+.input {
+  text-align: center;
+  font-family: 'Comm Bold';
+  color: white;
+  font-size: 15px;
+  padding: 5px 10px;
+  border: 1px solid white;
+  background: white;
+  outline: none;
+}
+
+.input:focus {
+  background: none;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  margin: 30px 100px;
+}
+
+.centered-items {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
 }
 
 .title {
@@ -97,6 +148,13 @@ export default {
   color: white;
   font-size: 24px;
   margin: 20px 0px 0px 0px;
+}
+
+.text {
+  text-align: center;
+  font-family: 'Comm Bold';
+  color: white;
+  font-size: 18px;
 }
 
 .type {

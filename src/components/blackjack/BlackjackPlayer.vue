@@ -5,8 +5,6 @@
         <SidePlayerArea v-if="active[0]" :name=names[1] class="left-player" />
         <SidePlayerArea v-if="active[1]" :name=names[2] class="top-player" />
         <SidePlayerArea v-if="active[2]" :name=names[3] class="right-player" />
-        <button v-on:click="reset"> Collect Cards </button>
-        <button v-on:click="moveToOriginalPosition"> Spread Cards </button>
     </div>
 </template>
 
@@ -23,9 +21,23 @@ export default {
   mixins: [DeckFunctions],
   computed: {
       ...mapState({
-          name: 'name',
-          players: 'inRoomUsers'
+          name (state) {
+              return state.name;
+          },
+          players (state) {
+              return state.inRoomUsers
+          },
+          total (state) {
+              return state.House.total
+          }
       })
+  },
+  watch: {
+      total (newValue) {
+          if (newValue !== 0) {
+              this.handleWin();
+          }
+      }
   },
   components: {
       PlayerArea,
@@ -53,23 +65,22 @@ export default {
             }
         }
       },
-      reset: function() {
-          this.numOfTotals = 0;
-          this.totals = [];
-      },
       handleWin: function() {
         let winningNumber = 0;
         let index = 0;
-        for (let i = 0; i < this.players + 1; i++) {
-            if (this.totals[i] < 21 && this.totals[i] > winningNumber) {
-                winningNumber = this.totals[i];
+        for (let i = 1; i < this.players + 1; i++) {
+            let playerTotal = this.$store.getters.getPlayerTotal(`P${i}`);
+            if (playerTotal < 21 && playerTotal > winningNumber) {
+                winningNumber = playerTotal;
                 index = i;
-            } else if (this.totals[i] === 21) {
+            } else if (playerTotal === 21) {
+                winningNumber = 22;
+                index = i;
                 this.enableWinner(`P${i}`);
                 break;
             }
         }
-        if (this.totals[5] <= 21 && this.totals[5] > winningNumber) {
+        if (this.total <= 21 && this.total > winningNumber) {
             this.enableWinner('House');
         } else {
             this.enableWinner(`P${index}`);
@@ -87,31 +98,13 @@ export default {
         this.names = [];
         this.setAreasActive();
         this.setPlayerNames();
-      });
-      EventBus.$on('reset player', () => {
-          this.numOfTotals = 0;
-          this.totals = [];
-          this.resetBlackjack(null, 500, 2100);
-      });
-      EventBus.$on('handle win', (name, total) => {
-          if (name.localeCompare('House') === 0) {
-              this.totals[5] = total;
-          } else {
-              let index = Number(name.substring(1, 2));
-              this.totals[index] = total;
-          }
-          this.numOfTotals++;
-          if (this.numOfTotals === this.players + 1) {
-            this.handleWin();
-          }
+        this.resetBlackjack(null, 500, 2100);
       });
   },
   data() {
     return {
       names: [],
       active: [],
-      totals: [],
-      numOfTotals: 0
     }
   }
 }
@@ -124,7 +117,7 @@ export default {
     height: 25vh;
     left: 1vw;
     top: 37.5vh;
-    background-color: blue;
+    border: 1px solid white;
 }
 
 .right-player {
@@ -133,7 +126,7 @@ export default {
     height: 25vh;
     left: 73vw;
     top: 37.5vh;
-    background-color: red;
+    border: 1px solid white;
 }
 
 .top-player {
@@ -142,7 +135,7 @@ export default {
     height: 25vh;
     left: 37vw;
     top: 2vh;
-    background-color: yellow;
+    border: 1px solid white;
 }
 
 .main-player {
@@ -151,7 +144,7 @@ export default {
     height: 25vh;
     left: 37vw;
     top: 73vh;
-    background-color: white;
+    border: 1px solid white;
 }
 
 .house {
@@ -160,6 +153,6 @@ export default {
     height: 30vh;
     left: 30vw;
     top: 35vh;
-    background-color: white;
+    border: 1px solid white;
 }
 </style>

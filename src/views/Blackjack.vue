@@ -21,9 +21,12 @@ export default {
     ...mapState(['name', 'winner'])
   },
   watch: {
-    winner () {
-      this.ended = true;
-      this.$socket.emit('game ended');
+    winner (newValue) {
+      if (newValue.length !== 0) {
+        this.ended = true;
+        if (this.name.localeCompare('P1') === 0)
+        this.$socket.emit('game ended');
+      }
     }
   },
   components: {
@@ -52,11 +55,15 @@ export default {
     this.$socket.on('start game', () => {
       this.setToPlaying();
     });
+    this.$socket.on('game ended', () => {
+      if (this.spectating === true) {
+        this.spectating = false;
+      }
+    })
   },
   data() {
     return {
       playing: false,
-      players: 0,
       ended: false,
       spectating: false
     }

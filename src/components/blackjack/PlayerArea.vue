@@ -1,13 +1,13 @@
 <template>
     <div class="player-field">
-        <h3> {{this.name}}</h3>
-        <h3> {{this.total}}</h3>
+        <h3 class="text"> {{this.name}}</h3>
+        <h3 class="text"> {{this.total}}</h3>
         <div class="card-hand"> 
-          <div class="card" :id="name + (n-1)" v-for="n in 2" v-on:click="flipCard" v-bind:key=(n-1) :url=urls[(n-1)] >
+          <div class="card" :id="name + (n-1)" v-for="n in 2" v-bind:key=(n-1) :url=dealtUrls[(n-1)] >
             <img class="card__face card__face--front" :src='require("../../assets/Cards/1B.svg")'  />
-            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${urls[n-1]}.svg`)' />
+            <img class="card__face card__face--back" :src='require(`../../assets/Cards/${dealtUrls[n-1]}.svg`)' />
           </div>
-          <div class="card" :id="name + 2" v-on:click="flipCard" v-bind:key=2 :url=urls[2] >
+          <div class="card" :id="name + 2" v-bind:key=2 :url=dealtUrls[2] >
             <img class="card__face card__face--front" :src='require("../../assets/Cards/1B.svg")'  />
             <img class="card__face card__face--back" :src='require(`../../assets/Cards/${finalUrl}.svg`)' />
           </div>
@@ -18,7 +18,7 @@
 <script>
 import { EventBus } from '../../main';
 import CardFunctions from '../../services/CardFunctions';
-import { setState } from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
   name: 'PlayerArea',
@@ -29,7 +29,7 @@ export default {
       finalUrl (state) {
         return state[this.name].finalUrl
       },
-      urls (state) {
+      dealtUrls (state) {
         return state[this.name].urls
       },
       total (state) {
@@ -38,24 +38,19 @@ export default {
     })
   },
   watch: {
-    urls () {
+    dealtUrls () {
       this.initializeHand();
     },
-    finalUrl (newUrl, oldUrl) {
-      this.addCardValue(newUrl);
+    finalUrl (newUrl) {
+      setTimeout(() => {
+        this.addCardValue(newUrl);
+      }, 200);
     }
   },
   methods: {
-    flipCard: function(e) {
-      e.stopPropagation();
-      let currentCard = e.srcElement;
-      currentCard.style.transition = 'transform 1s';
-      currentCard.classList.toggle('is-flipped');
-    },
     initializeHand: function() {
-      this.total = 0;
-      this.addCardValue(this.urls[0]);
-      this.addCardValue(this.urls[1]);
+      this.addCardValue(this.dealtUrls[0]);
+      this.addCardValue(this.dealtUrls[1]);
       let card1 = document.getElementById(`${this.name}0`);
       let card2 = document.getElementById(`${this.name}1`);
       card1.classList.toggle('is-flipped');
@@ -68,9 +63,9 @@ export default {
       let newTotal = this.total + value;
       let payload = {
         player: this.name,
-        newTotal
+        total: newTotal
       }
-      this.$store.commit('setHouseTotal', payload);
+      this.$store.commit('setPlayerTotal', payload);
 
       // Checks current total for each player to see their result
       if (this.total > 21) {
@@ -79,7 +74,6 @@ export default {
       }
     },
     reset: function() {
-      this.total = 0;
       this.lost = false;
     }
   },
@@ -92,10 +86,7 @@ export default {
         player: this.name,
         newUrls: cards
       }
-      this.$socket.commit('setPlayerUrls', payload);
-    });
-    EventBus.$on('send total', () => {
-      EventBus.$emit('handle win', this.name, this.total);
+      this.$store.commit('setPlayerUrls', payload);
     });
   },
   data() {

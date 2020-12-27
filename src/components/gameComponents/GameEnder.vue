@@ -3,7 +3,7 @@
         <h3 class="game-text"> Game Ended </h3>
         <h3 class="game-text"> Winner: {{winner}} </h3>
         <h3 class="game-text" v-if="reset" > {{`${readyUsers} / ${inRoomUsers} users ready`}} </h3>
-        <button class="game-button" v-if="!reset" v-on:click="enableReset"> Reset Game </button>
+        <button class="button" v-if="!reset" v-on:click="enableReset"> Reset Game </button>
     </section>
 </template>
 
@@ -14,7 +14,7 @@ import { mapState } from 'vuex';
 export default {
   name: 'GameEnder',
   computed: {
-    ...mapState(['inRoomUsers', 'readyUsers', 'winner'])
+    ...mapState(['inRoomUsers', 'readyUsers', 'winner', 'name'])
   },
   methods: {
       enableReset: function() {
@@ -24,15 +24,15 @@ export default {
       checkToReset: function() {
         this.gameStarted = this.inRoomUsers === this.readyUsers;
         if (this.gameStarted) {
-          this.$store.commit('setInRoomUsers', 0);
-          this.$store.commit('setReadyUsers', 0);
+          if (this.name.localeCompare('P1') === 0) {
+            this.$socket.emit('game started');
+          }
           EventBus.$emit('reset field');
-          setTimeout(() => {
-            EventBus.$emit('reset player');
-          }, 500);
+          this.$store.dispatch('resetAllTotals');
+          this.$store.commit('setWinner', '');
           setTimeout(() => {
             EventBus.$emit('reset');
-            this.reset = false;
+            this.$store.commit('setReadyUsers', 0);
           }, 2000);
         }
     }
@@ -45,6 +45,7 @@ export default {
       this.$store.commit('setReadyUsers', readyUsers);
       this.checkToReset();
     });
+    this.$socket.emit('get end users');
   },
   data() {
       return {

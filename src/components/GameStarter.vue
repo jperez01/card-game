@@ -11,13 +11,13 @@ import { mapState } from 'vuex';
 export default {
   name: 'GameStarter',
   computed: {
-    ...mapState(['readyUsers', 'inRoomUsers'])
+    ...mapState(['readyUsers', 'inRoomUsers', 'name'])
   },
   methods: {
     checkToStartGame: function() {
       let gameStarted = this.inRoomUsers === this.readyUsers;
-      if (gameStarted) {
-        this.$socket.emit('game started', null);
+      if (gameStarted && this.name.localeCompare('P1') === 0) {
+        this.$socket.emit('game started');
       }
     }
   },
@@ -30,11 +30,11 @@ export default {
       this.$store.commit('setReadyUsers', readyUsers);
       this.checkToStartGame();
     });
-    this.$socket.emit('get room users', null);
+    this.$socket.emit('get room users');
   },
-  data() {
-    return {
-    }
+  beforeDestroy() {
+    this.$socket.removeListener('room users');
+    this.$socket.removeListener('current ready');
   }
 }
 </script>
