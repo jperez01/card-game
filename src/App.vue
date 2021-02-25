@@ -13,8 +13,14 @@ export default {
   beforeDestroy() {
     this.$socket.disconnect();
   },
-  data() {
-    return {
+  created() {
+    let room = window.sessionStorage.getItem('roomID');
+    let name = window.sessionStorage.getItem('name');
+    if (room !== null) {
+      this.$store.commit('setName', name);
+      this.$store.dispatch('joinRoom', room);
+      this.$socket.emit('rejoin room', room);
+      this.$router.push('/');
     }
   }
 }

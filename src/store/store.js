@@ -69,6 +69,17 @@ export const store = new Vuex.Store({
             }
             context.commit('setPlayerTotal', payload);
             context.commit('setHouseTotal', 0);
+        },
+        joinRoom (context, roomID) {
+            context.commit('setRoomID', roomID);
+            window.sessionStorage.setItem('roomID', roomID);
+            window.sessionStorage.setItem('name', context.getters.getName);
+        },
+        leaveRoom (context) {
+            context.commit('setRoomID', '');
+            context.commit('setName', '');
+            window.sessionStorage.setItem('roomID', null);
+            window.sessionStorage.setItem('name', null);
         }
     },
     mutations: {

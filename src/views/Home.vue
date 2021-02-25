@@ -12,6 +12,7 @@
       </div>
       <div class="centered-items" v-if="this.enabledMult">
         <router-link v-if="this.enabledMult" class="link" to="/blackjack"> Blackjack </router-link>
+        <button class="button" v-on:click="leaveRoom"> Leave Room </button>
       </div>
       <div class="centered-items" v-if="!this.showDetails">
         <button class="button" v-on:click="sendMessage"> Create Room </button>
@@ -31,6 +32,12 @@ export default {
     ...mapState(['roomID', 'name'])
   },
   methods: {
+    checkForReturn: function () {
+      if (this.roomID.length !== 0) {
+        this.enableMultiplayer();
+        this.showDetails = true;
+      }
+    },
     collectID: function(e) {
       this.potentialID = e.target.value;
     },
@@ -38,27 +45,45 @@ export default {
       this.$socket.emit('create room');
     },
     joinRoom: function() {
-      this.$socket.emit('join room', this.potentialID);
+      if (this.potentialID.length > 0) {
+        this.$socket.emit('join room', this.potentialID);
+      }
+    },
+    leaveRoom: function() {
+      this.$socket.emit('leave room', this.roomID);
+      this.$store.dispatch('leaveRoom');
+      this.enabledMult = false;
+      this.showDetails = false;
+      this.potentialID = '';
     },
     enableMultiplayer: function() {
       this.enabledMult = true;
+    },
+    disableMultiplayer: function() {
+      this.enabledMult = false;
     }
   },
   created() {
     this.$socket.on('created', (roomID, name) => {
       this.$store.commit('setName', `P${name}`);
-      this.$store.commit('setRoomID', roomID);
+      this.$store.dispatch('joinRoom', roomID);
       this.showDetails = true;
     });
     this.$socket.on('enough players', () => {
       this.enableMultiplayer();
-    })
+    });
     this.$socket.on('joined room', (name) => {
-      this.$store.commit('setName', `P${name}`);
-      this.$store.commit('setRoomID', this.potentialID);
+      this.$store.commit('setName', name);
+      this.$store.dispatch('joinRoom', this.potentialID);
       this.showDetails = true;
       this.enableMultiplayer();
     });
+    this.$socket.on('player left', players => {
+      if (players < 2) {
+        this.disableMultiplayer();
+      }
+    })
+    this.checkForReturn();
   },
   data() {
     return {

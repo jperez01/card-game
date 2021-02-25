@@ -1,16 +1,18 @@
 <template>
   <div class="playing-field">
-    <GameStarter v-if="!spectating & !playing" />
+    <GameStarter v-if="!spectating & !playing & !paused" />
     <GameSpectator v-if="spectating" />
     <GameEnder v-if="ended" />
+    <GamePauser v-if="paused" />
     <BlackjackPlayer v-if="playing" />
   </div>
 </template>
 
 <script>
-import GameStarter from '../components/GameStarter';
+import GameStarter from '../components/gameComponents/GameStarter';
 import GameEnder from '../components/gameComponents/GameEnder';
 import GameSpectator from '../components/gameComponents/GameSpectator';
+import GamePauser from '../components/gameComponents/GamePauser';
 import BlackjackPlayer from '../components/blackjack/BlackjackPlayer';
 import { EventBus } from '../main';
 import { mapState } from 'vuex';
@@ -33,7 +35,8 @@ export default {
     GameStarter,
     GameSpectator,
     GameEnder,
-    BlackjackPlayer
+    BlackjackPlayer,
+    GamePauser
   },
   methods: {
     setToSpectator: function() {
@@ -43,6 +46,12 @@ export default {
     setToPlaying: function() {
       this.playing = true;
       this.spectating = false;
+    },
+    setToPause: function() {
+      this.paused = true;
+      this.spectating = false;
+      this.ended = false;
+      this.playing = true;
     }
   },
   created() {
@@ -59,13 +68,17 @@ export default {
       if (this.spectating === true) {
         this.spectating = false;
       }
-    })
+    });
+    this.$socket.on('suspend game', () => {
+      this.setToPause();
+    });
   },
   data() {
     return {
       playing: false,
       ended: false,
-      spectating: false
+      spectating: false,
+      paused: false
     }
   }
 }

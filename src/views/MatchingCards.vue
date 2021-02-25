@@ -1,9 +1,11 @@
 <template>
   <div class="playing-field">
-    <Loader />
+    <div class="game-info" v-if="loading">
+      <h3 class="game-text">Loading</h3>
+    </div>
     <router-link class="home" to="/">Return Home </router-link>
         <div class="header">
-            <button v-on:click="resetField" class="button"> Reset </button>
+            <button v-on:click="resetFieldComponents" class="button"> Reset </button>
             <div class="header-info">
             <h3 class="header-label"> Moves </h3>
             <h3 class="header-item"> {{counter}} </h3>
@@ -22,7 +24,6 @@
 </template>
 
 <script>
-import Loader from './Loader';
 import DeckFunctions from '../services/DeckFunctions';
 import CardFunctions from '../services/CardFunctions';
 
@@ -32,7 +33,6 @@ export default {
   },
   mixins: [DeckFunctions, CardFunctions],
   components: {
-    Loader
   },
   methods: {
     startTimer: function() {
@@ -66,17 +66,21 @@ export default {
       }
       this.urls = this.shuffleGivenUrls(this.urls);
     },
-    resetField: function(e) {
+    resetFieldComponents: function(e) {
+      this.loading = true;
       this.resetFlippedCard(this.firstFlipped);
       this.resetFlippedCard(this.secondFlipped);
       this.resetInvisibleCards();
       this.endTimer();
-      this.resetField(e);
+      this.resetField(e, 500, 2500);
       this.shuffleUrls();
       this.resetUrls();
       this.counter = 0;
       this.firstFlipped = null;
       this.secondFlipped = null;
+      setTimeout(() => {
+        this.loading = false;
+      }, 2600);
     },
     resetInvisibleCards: function() {
       this.oldCards.forEach(card => {
@@ -111,7 +115,7 @@ export default {
     checkForMatch: function() {
       let firstUrl = this.firstFlipped.getAttribute('url');
       let secondUrl = this.secondFlipped.getAttribute('url');
-      let result = this.info.isCopy(firstUrl, secondUrl);
+      let result = this.isCopy(firstUrl, secondUrl);
       let oldFirst = this.firstFlipped;
       let oldSecond = this.secondFlipped;
       if (result) {
@@ -154,7 +158,8 @@ export default {
   data() {
     return {
       counter: 0,
-      time: '0:00'
+      time: '0:00',
+      loading: false
       }
   }
 }
@@ -176,21 +181,6 @@ export default {
   grid-template-columns: repeat(8, 120px);
 }
 
-.button {
-  height: 40px;
-  width: 100px;
-  font-family: 'Comm Bold';
-  font-size: 20px;
-  color: white;
-  align-self: center;
-  background: none;
-  border: 1px solid white;
-  cursor: pointer;
-}
-
-.button:hover {
-  background-color: rgba(66, 65, 65, .4);
-}
 
 .header {
   height: 100px;

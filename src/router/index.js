@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import MatchingCards from '../components/MatchingCards.vue';
+import MatchingCards from '../views/MatchingCards.vue';
 import Home from '../views/Home.vue';
 import Blackjack from '../views/Blackjack.vue';
 import Test from '../views/Test.vue';

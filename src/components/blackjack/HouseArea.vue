@@ -165,6 +165,11 @@ export default {
       alreadyHouseTurn: false,
       calculatedTotal: 0
     }
+  },
+  beforeDestroy() {
+    this.$socket.removeListener('handle deal');
+    this.$socket.removeListener('send house cards');
+    this.$socket.removeListener('next player');
   }
 }
 </script>

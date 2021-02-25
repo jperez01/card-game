@@ -11,7 +11,7 @@ import { mapState } from 'vuex';
 export default {
   name: 'GameStarter',
   computed: {
-    ...mapState(['readyUsers', 'inRoomUsers', 'name'])
+    ...mapState(['readyUsers', 'inRoomUsers', 'name', 'roomID'])
   },
   methods: {
     checkToStartGame: function() {

@@ -93,6 +93,9 @@ export default {
     return {
       lost: false
     }
+  },
+  beforeDestroy() {
+    this.$socket.removeListener('get cards');
   }
 }
 </script>

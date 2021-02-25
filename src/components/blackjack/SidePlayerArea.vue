@@ -96,6 +96,9 @@ export default {
       playing: false,
       spectating: false
     }
+  },
+  beforeDestroy() {
+    this.$socket.removeListener('get cards' + this.name);
   }
 }
 </script>
