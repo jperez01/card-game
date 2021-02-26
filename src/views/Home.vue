@@ -107,13 +107,13 @@ export default {
 }
 
 .link {
-  height: 25px;
   text-align: center;
   font-family: 'Comm Bold';
   color: white;
-  font-size: 20px;
+  font-size: 1rem;
   padding: 10px;
   margin: 20px;
+  width: 5rem;
   text-decoration: none;
   border: 1px solid white;
 }
@@ -126,7 +126,7 @@ export default {
   text-align: center;
   font-family: 'Comm Bold';
   color: white;
-  font-size: 20px;
+  font-size: 1rem;
   padding: 10px;
   margin: 20px;
   text-decoration: none;
@@ -147,6 +147,7 @@ export default {
   font-size: 15px;
   padding: 5px 10px;
   border: 1px solid white;
+  width: 80%;
   background: white;
   outline: none;
 }
@@ -158,20 +159,21 @@ export default {
 .section {
   display: flex;
   flex-direction: column;
-  margin: 30px 100px;
+  margin: 3% 4%;
+  align-items: center;
 }
 
 .centered-items {
   display: flex;
   flex-direction: column;
-  align-content: center;
+  align-items: center;
 }
 
 .title {
   text-align: center;
   font-family: 'Comm Bold';
   color: white;
-  font-size: 24px;
+  font-size: 5vw;
   margin: 20px 0px 0px 0px;
 }
 
@@ -179,7 +181,6 @@ export default {
   text-align: center;
   font-family: 'Comm Bold';
   color: white;
-  font-size: 18px;
 }
 
 .type {

@@ -124,7 +124,12 @@ const DeckFunctions = {
                 let url = card.getAttribute('url');
                 if (this.dealtCards.get(url) === undefined) {
                     let oldPosition = this.calculateElementPosition(card);
-                    let newXPosition = newPosition.left - oldPosition.left + 60;
+                    let newXPosition = 0;
+                    if (screen.width > 1024) {
+                        newXPosition = newPosition.left - oldPosition.left + screen.width * .02;
+                    } else {
+                        newXPosition = newPosition.left - oldPosition.left + screen.width * .07;
+                    }
                     let newYPosition = newPosition.top - oldPosition.top;
                     card.style.transition = 'transform .5s';
                     card.style.transform = `translate(${newXPosition}px, ${newYPosition}px)`;

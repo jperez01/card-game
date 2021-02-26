@@ -3,8 +3,8 @@
     <div class="game-info" v-if="loading">
       <h3 class="game-text">Loading</h3>
     </div>
-    <router-link class="home" to="/">Return Home </router-link>
         <div class="header">
+            <router-link class="link" to="/">Return Home </router-link>
             <button v-on:click="resetFieldComponents" class="button"> Reset </button>
             <div class="header-info">
             <h3 class="header-label"> Moves </h3>
@@ -29,11 +29,7 @@ import CardFunctions from '../services/CardFunctions';
 
 export default {
   name: 'MatchingCards',
-  props: {
-  },
   mixins: [DeckFunctions, CardFunctions],
-  components: {
-  },
   methods: {
     startTimer: function() {
       let seconds = 0;
@@ -150,37 +146,41 @@ export default {
   },
   created() {
     this.timer = null;
-    this.oldCards = [];
     this.resetUrls();
-    this.firstFlipped = null;
-    this.secondFlipped = null;
   },
   data() {
     return {
       counter: 0,
       time: '0:00',
-      loading: false
+      loading: false,
+      firstFlipped: null,
+      secondFlipped: null,
+      oldCards: []
       }
   }
 }
 </script>
 
 <style scoped>
-.playing-field {
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  background-color: #45a173;
-  flex-direction: column;
+#home {
+  line-height: 40px;
 }
 
 .card-deck {
   display: grid;
   align-self: center;
-  grid-template-rows: repeat(4, 180px);
-  grid-template-columns: repeat(8, 120px);
+  grid-template-rows: repeat(4, 11vh);
+  grid-template-columns: repeat(8, 9vh);
 }
 
+@media screen and (max-width: 600px) {
+  .card-deck {
+    display: grid;
+    align-self: center;
+    grid-template-rows: repeat(7, 11vh);
+    grid-template-columns: repeat(5, 9vh);
+  }
+}
 
 .header {
   height: 100px;
@@ -211,20 +211,4 @@ export default {
   font-size: 20px;
 }
 
-.home {
-  height: 25px;
-  text-align: center;
-  position: absolute;
-  font-family: 'Comm Bold';
-  color: white;
-  font-size: 20px;
-  padding: 10px;
-  margin: 20px;
-  text-decoration: none;
-  border: 1px solid white;
-}
-
-.home:hover {
-  background-color:rgba(66, 65, 65, .4);
-}
 </style>

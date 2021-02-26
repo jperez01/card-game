@@ -9,7 +9,6 @@
 </template>
 
 <script>
-import { EventBus } from '../../main';
 import HouseArea from './HouseArea';
 import PlayerArea from './PlayerArea';
 import SidePlayerArea from './SidePlayerArea';
@@ -93,7 +92,7 @@ export default {
   created() {
       this.setAreasActive();
       this.setPlayerNames();
-      EventBus.$on('reset field', () => {
+      this.$eventBus.$on('reset field', () => {
         this.active = [];
         this.names = [];
         this.setAreasActive();
@@ -154,5 +153,79 @@ export default {
     left: 30vw;
     top: 35vh;
     border: 1px solid white;
+}
+
+.card-hand {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+}
+.house-hand {
+  display: grid;
+  grid-template-columns: repeat(4, 100px);
+}
+
+@media screen and (max-width: 1024px) {
+    .text {
+        text-align: center;
+        font-family: 'Comm Bold';
+        color: white;
+        font-size: 2.5vw;
+    }
+    .left-player {
+        position: absolute;
+        width: 45vw;
+        height: 25vh;
+        left: 51.5vw;
+        top: 37.5vh;
+        border: 1px solid white;
+    }
+
+    .right-player {
+        position: absolute;
+        width: 45vw;
+        height: 25vh;
+        left: 51.5vw;
+        top: 70vh;
+        border: 1px solid white;
+    }
+
+    .top-player {
+        position: absolute;
+        width: 45vw;
+        height: 25vh;
+        left: 3.5vw;
+        top: 70vh;
+        border: 1px solid white;
+    }
+
+    .main-player {
+        position: absolute;
+        width: 45vw;
+        height: 25vh;
+        left: 3.5vw;
+        top: 37.5vh;
+        border: 1px solid white;
+    }
+
+    .house {
+        position: absolute;
+        width: 70vw;
+        height: 30vh;
+        left: 15vw;
+        top: 3vh;
+        border: 1px solid white;
+    }
+    .card-hand {
+        display: grid;
+        grid-template-columns: repeat(3, 14vw);
+    }
+
+    .house-hand {
+        display: grid;
+        grid-template-columns: repeat(4, 16vw);
+    }
+    #house-text {
+        margin: 7.5px;
+    }
 }
 </style>

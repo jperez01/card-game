@@ -8,7 +8,7 @@ const ENDPOINT = 'http://localhost:5000';
 Vue.prototype.$socket = socketIOClient(ENDPOINT);
 Vue.config.productionTip = false;
 
-export const EventBus = new Vue();
+Vue.prototype.$eventBus = new Vue();
 new Vue({
   store,
   router,

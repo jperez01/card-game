@@ -1,7 +1,7 @@
 <template>
     <div class="house-field">
-        <h3 class="text"> {{this.name}} </h3>
-        <h3 class="text"> {{this.calculatedTotal}} </h3>
+        <h3 class="text" id="house-text"> {{this.name}} </h3>
+        <h3 class="text" id="house-text"> {{this.calculatedTotal}} </h3>
         <div class="house-hand"> 
           <div class="card" :id="name + (n-1)" v-for="n in 3" v-bind:key=n :url=deckCards[n-1]>
             <img class="card__face card__face--front" :src='require("../../assets/Cards/1B.svg")'  />
@@ -24,7 +24,6 @@
 <script>
 import DeckFunctions from '../../services/DeckFunctions';
 import CardFunctions from '../../services/CardFunctions';
-import { EventBus } from '../../main';
 import { mapState } from 'vuex';
 
 export default {
@@ -141,7 +140,7 @@ export default {
     this.$socket.on('handle deal', () => {
       this.handleDealCard();
     });
-    EventBus.$on('reset', () => {
+    this.$eventBus.$on('reset', () => {
       this.reset();
     });
     this.$socket.on('next player', (player) => {
@@ -150,7 +149,7 @@ export default {
         this.moveToNextPlayer();
       }
     });
-    EventBus.$on('player lost', name => {
+    this.$eventBus.$on('player lost', name => {
       let convertedValue = Number(name.substring(1, 2));
       this.playersToDeal[convertedValue - 1] = false;
       this.moveToNextPlayer();
@@ -181,14 +180,9 @@ export default {
   align-items: center;
 }
 
-.house-hand {
-  display: grid;
-  grid-template-columns: repeat(4, 120px);
-}
-
 .deck-card {
     position: absolute;
-    left: 78.5%;
+    left: 83%;
     height: 160px;
     transform: translate(0,0);
     transition: transform .3s cubic-bezier(0.075, 0.82, 0.165, 1);

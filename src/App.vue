@@ -33,7 +33,7 @@ export default {
 }
 
 .card {
-  height: 160px;
+  height: 10vh;
   transform: translate(0,0);
   transition: transform .3s cubic-bezier(0.075, 0.82, 0.165, 1);
   transform-style: preserve-3d;
@@ -55,11 +55,11 @@ export default {
 }
 
 .card__face--front {
-  height: 160px;
+  height: 10vh;
 }
 
 .card__face--back {
-  height: 160px;
+  height: 10vh;
   transform: rotateY(180deg);
 }
 
@@ -79,5 +79,13 @@ export default {
   justify-content: center;
   z-index: 4;
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.playing-field {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  background-color: #45a173;
+  flex-direction: column;
 }
 </style>

@@ -16,7 +16,6 @@
 </template>
 
 <script>
-import { EventBus } from '../../main';
 import CardFunctions from '../../services/CardFunctions';
 import { mapState } from 'vuex';
 
@@ -69,7 +68,7 @@ export default {
 
       // Checks current total for each player to see their result
       if (this.total > 21) {
-        EventBus.$emit('player lost', this.name);
+        this.$eventBus.$emit('player lost', this.name);
         this.lost = true;
       }
     },
@@ -78,7 +77,7 @@ export default {
     }
   },
   created() {
-    EventBus.$on('reset player', () => {
+    this.$eventBus.$on('reset player', () => {
       this.reset();
     });
     this.$socket.on('get cards ' + this.name, cards => {
@@ -105,11 +104,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.card-hand {
-  display: grid;
-  grid-template-columns: repeat(3, 120px);
 }
 
 #top {

@@ -3,7 +3,6 @@ import VueRouter from 'vue-router';
 import MatchingCards from '../views/MatchingCards.vue';
 import Home from '../views/Home.vue';
 import Blackjack from '../views/Blackjack.vue';
-import Test from '../views/Test.vue';
 
 Vue.use(VueRouter);
 
@@ -17,11 +16,6 @@ const routes = [
         path: '/blackjack',
         name: 'Blackjack',
         component: Blackjack
-    },
-    {
-        path: '/test',
-        name: 'Test',
-        component: Test
     },
     {
         path: '/',

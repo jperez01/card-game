@@ -14,7 +14,6 @@ import GameEnder from '../components/gameComponents/GameEnder';
 import GameSpectator from '../components/gameComponents/GameSpectator';
 import GamePauser from '../components/gameComponents/GamePauser';
 import BlackjackPlayer from '../components/blackjack/BlackjackPlayer';
-import { EventBus } from '../main';
 import { mapState } from 'vuex';
 
 export default {
@@ -51,14 +50,13 @@ export default {
       this.paused = true;
       this.spectating = false;
       this.ended = false;
-      this.playing = true;
     }
   },
   created() {
     this.$socket.on('game in progress', () => {
       this.setToSpectator();
     });
-    EventBus.$on('reset', () => {
+    this.$eventBus.$on('reset', () => {
       this.ended = false;
     });
     this.$socket.on('start game', () => {
@@ -72,6 +70,12 @@ export default {
     this.$socket.on('suspend game', () => {
       this.setToPause();
     });
+  },
+  beforeDestroy() {
+    this.$socket.removeListener('game in progress');
+    this.$socket.removeListener('suspend game');
+    this.$socket.removeListener('start game');
+    this.$socket.removeListener('game ended');
   },
   data() {
     return {
