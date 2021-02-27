@@ -1,5 +1,6 @@
 import CardInfo from './CardInfo';
 
+// These functions are used to get info about cards like their value or if they are copies
 const CardFunctions = {
     created: function() {
         let cardInfo = new CardInfo();

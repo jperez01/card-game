@@ -7,10 +7,10 @@
             <router-link class="link" to="/">Return Home </router-link>
             <button v-on:click="resetFieldComponents" class="button"> Reset </button>
             <div class="header-info">
-            <h3 class="header-label"> Moves </h3>
-            <h3 class="header-item"> {{counter}} </h3>
-            <h3 class="header-label"> Time </h3>
-            <h3 class="header-item"> {{time}} </h3>
+              <h3 class="header-label"> Moves </h3>
+              <h3 class="header-item"> {{counter}} </h3>
+              <h3 class="header-label"> Time </h3>
+              <h3 class="header-item"> {{time}} </h3>
             </div>
             <button v-on:click="startTimer" class="button"> Start </button>
         </div>
@@ -53,6 +53,7 @@ export default {
       this.time = '0:00';
     },
     resetUrls: function() {
+      // Shuffles all urls and then pushes 2 copies of 21 cards into list
       this.shuffleUrls();
       let identifiers = this.getUrls();
       this.urls = [];
@@ -60,6 +61,7 @@ export default {
         this.urls.push(identifiers[i]);
         this.urls.push(identifiers[i]);
       }
+      // Shuffles the set of 21 duplicates to make them random
       this.urls = this.shuffleGivenUrls(this.urls);
     },
     resetFieldComponents: function(e) {
@@ -111,15 +113,18 @@ export default {
     checkForMatch: function() {
       let firstUrl = this.firstFlipped.getAttribute('url');
       let secondUrl = this.secondFlipped.getAttribute('url');
-      let result = this.isCopy(firstUrl, secondUrl);
       let oldFirst = this.firstFlipped;
       let oldSecond = this.secondFlipped;
+
+      let result = this.isCopy(firstUrl, secondUrl);
       if (result) {
+        // If match, push both cards into list and hide them
         this.oldCards.push(oldFirst);
         this.oldCards.push(oldSecond);
         this.hideMatchedCards(oldFirst, oldSecond);
         this.checkForEnd();
       } else {
+        // If not, reset by flipping them back down
         setTimeout(() => {
           oldFirst.classList.toggle('is-flipped');
           oldSecond.classList.toggle('is-flipped');

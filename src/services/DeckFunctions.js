@@ -1,5 +1,6 @@
 import GlobalData from './GlobalData';
 
+// These functions are used during games to move cards when playing and resetting
 const DeckFunctions = {
     created: function() {
         this.currentCard = null;

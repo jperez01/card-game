@@ -9,13 +9,15 @@
       <div class="centered-items" v-if="this.showDetails">
         <h3 class="text"> Room ID: {{roomID}} </h3>
         <h3 class="text"> Player: {{name}} </h3>
-      </div>
-      <div class="centered-items" v-if="this.enabledMult">
-        <router-link v-if="this.enabledMult" class="link" to="/blackjack"> Blackjack </router-link>
+        <button class="button" v-on:click="copyID"> Copy Room ID </button>
         <button class="button" v-on:click="leaveRoom"> Leave Room </button>
       </div>
+      <div class="centered-items" v-if="this.enabledMult">
+        <router-link class="link" to="/blackjack"> Blackjack </router-link>
+      </div>
       <div class="centered-items" v-if="!this.showDetails">
-        <button class="button" v-on:click="sendMessage"> Create Room </button>
+        <button class="button" v-on:click="createRoom"> Create Room </button>
+        <h3 class="error" v-if="error"> Code does not work </h3>
         <input class="input" v-on:change="collectID">
         <button class="button" v-on:click="joinRoom"> Join Room </button>
       </div>
@@ -32,6 +34,15 @@ export default {
     ...mapState(['roomID', 'name'])
   },
   methods: {
+    copyID: function() {
+      // Creates dummy text area and then selects its content
+      var dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = this.roomID;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+    },
     checkForReturn: function () {
       if (this.roomID.length !== 0) {
         this.enableMultiplayer();
@@ -41,7 +52,7 @@ export default {
     collectID: function(e) {
       this.potentialID = e.target.value;
     },
-    sendMessage: function() {
+    createRoom: function() {
       this.$socket.emit('create room');
     },
     joinRoom: function() {
@@ -61,6 +72,12 @@ export default {
     },
     disableMultiplayer: function() {
       this.enabledMult = false;
+    },
+    enableError: function () {
+      this.error = true;
+    },
+    disableError: function() {
+      this.error = false;
     }
   },
   created() {
@@ -68,6 +85,7 @@ export default {
       this.$store.commit('setName', `P${name}`);
       this.$store.dispatch('joinRoom', roomID);
       this.showDetails = true;
+      this.disableError();
     });
     this.$socket.on('enough players', () => {
       this.enableMultiplayer();
@@ -77,11 +95,16 @@ export default {
       this.$store.dispatch('joinRoom', this.potentialID);
       this.showDetails = true;
       this.enableMultiplayer();
+      this.disableError();
     });
     this.$socket.on('player left', players => {
       if (players < 2) {
         this.disableMultiplayer();
       }
+    });
+    this.$socket.on('wrong id', () => {
+      this.potentialID = '';
+      this.enableError();
     })
     this.checkForReturn();
   },
@@ -89,8 +112,16 @@ export default {
     return {
       potentialID: '',
       enabledMult: false,
-      showDetails: false
+      showDetails: false,
+      error: false
     }
+  },
+  beforeDestroy() {
+    this.$socket.removeListener('enough players');
+    this.$socket.removeListener('created');
+    this.$socket.removeListener('joined room');
+    this.$socket.removeListener('player left');
+    this.$socket.removeListener('wrong id');
   }
 }
 </script>
@@ -189,4 +220,12 @@ export default {
   color: white;
   font-size: 24px;
 }
+
+.error {
+  text-align: center;
+  font-family: 'Comm Bold';
+  color: red;
+  margin: 0px 0px 20px 0px;
+}
+
 </style>

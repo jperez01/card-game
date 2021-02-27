@@ -150,6 +150,7 @@ export default {
       }
     });
     this.$eventBus.$on('player lost', name => {
+      console.log("Player lost");
       let convertedValue = Number(name.substring(1, 2));
       this.playersToDeal[convertedValue - 1] = false;
       this.moveToNextPlayer();
@@ -169,6 +170,7 @@ export default {
     this.$socket.removeListener('handle deal');
     this.$socket.removeListener('send house cards');
     this.$socket.removeListener('next player');
+    this.$eventBus.$off('player lost');
   }
 }
 </script>
